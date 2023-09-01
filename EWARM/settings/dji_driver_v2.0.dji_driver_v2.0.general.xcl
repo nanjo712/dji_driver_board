@@ -1,0 +1,15 @@
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 9.1\arm\bin\armPROC.dll" 
+
+"D:\Program Files (x86)\IAR Systems\Embedded Workbench 9.1\arm\bin\armJET.dll" 
+
+"e:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\dji_driver_v2.0\Exe\dji_driver_v2.0.out" 
+
+--plugin="D:\Program Files (x86)\IAR Systems\Embedded Workbench 9.1\arm\bin\armbat.dll" 
+
+--device_macro="D:\Program Files (x86)\IAR Systems\Embedded Workbench 9.1\arm/config/debugger/ST/STM32F4xx.dmac" 
+
+--flash_loader="D:\Program Files (x86)\IAR Systems\Embedded Workbench 9.1\arm/config/flashloader/ST/FlashSTM32F4xxx.board" 
+
+
+
+

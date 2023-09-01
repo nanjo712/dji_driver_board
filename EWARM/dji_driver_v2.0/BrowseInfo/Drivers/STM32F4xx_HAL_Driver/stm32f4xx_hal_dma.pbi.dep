@@ -1,0 +1,40 @@
+E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\dji_driver_v2.0\BrowseInfo\Drivers\STM32F4xx_HAL_Driver\stm32f4xx_hal_dma.pbi: \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_dma.c \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Core\Inc\stm32f4xx_hal_conf.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f405xx.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Include\core_cm4.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\stdint.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\ycheck.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\yvals.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\DLib_Defaults.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\DLib_Config_Full.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\DLib_Product.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Include\cmsis_version.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Include\cmsis_compiler.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Include\cmsis_iccarm.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\aarch32\iccarm_builtin.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Include\mpu_armv7.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\stddef.h \
+  D:\Program\ Files\ (x86)\IAR\ Systems\Embedded\ Workbench\ 9.1\arm\inc\c\ysizet.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_exti.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_cortex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_can.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
+  E:\ptyzlyy_doc\BUPT\Robot\Code\Project\DJI_Ctrl\dji_driver_v2\EWARM\..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h
