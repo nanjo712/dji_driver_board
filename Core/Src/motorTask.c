@@ -1,8 +1,9 @@
 #include "motorTask.h"
 #include "command.h"
 #include "ctrl.h"
-#include "oslib_uart.h"
+#include "oslib.h"
 #include "config.h"
+
 /**
  * @brief can1接收消息线程
  *        用来接受大疆电机报文消息
@@ -13,7 +14,7 @@ extern osMutexId_t motorsMutexHandle;
 
 int firstFlag[4];
 
-void can1RecieveFunc(void *argument)
+void can1ReceiveFunc(void *argument)
 {
     for (int i = 0; i < 4; i++)
     {
@@ -23,10 +24,10 @@ void can1RecieveFunc(void *argument)
     for (;;)
     {
         static CAN_ConnMessage msg;
-        osMessageQueueGet(can1RecieveQueueHandle, &msg, NULL, osWaitForever);
+        osMessageQueueGet(can1ReceiveQueueHandle, &msg, NULL, osWaitForever);
         /* user functional code start */
 
-        // uprintf("CAN1: Recieved [%x]\r\n", msg.id);
+        // uprintf("CAN1: Received [%x]\r\n", msg.id);
         uint8_t n = msg.id - RM_RECV_BASE;
         if (n >= 4)
             return;
@@ -53,14 +54,14 @@ void can1RecieveFunc(void *argument)
  *        用来接受主控控制消息
  * @param argument
  */
-void can2RecieveFunc(void *argument)
+void can2ReceiveFunc(void *argument)
 {
     for (;;)
     {
         static CAN_ConnMessage msg;
-        osMessageQueueGet(can2RecieveQueueHandle, &msg, NULL, osWaitForever);
+        osMessageQueueGet(can2ReceiveQueueHandle, &msg, NULL, osWaitForever);
         /* user functional code start */
-        // uprintf("CAN2: Recieved [%x]\r\n", msg.id);
+        // uprintf("CAN2: Received [%x]\r\n", msg.id);
         switch (msg.id)
         {
         case 0x200 + BOARDID:

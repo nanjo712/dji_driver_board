@@ -64,29 +64,29 @@ const osThreadAttr_t can1SendTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal2,
 };
-/* Definitions for can1RecieveTask */
-osThreadId_t can1RecieveTaskHandle;
-const osThreadAttr_t can1RecieveTask_attributes = {
-  .name = "can1RecieveTask",
+/* Definitions for can1ReceiveTask */
+osThreadId_t can1ReceiveTaskHandle;
+const osThreadAttr_t can1ReceiveTask_attributes = {
+  .name = "can1ReceiveTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal1,
 };
-/* Definitions for can2RecieveTask */
-osThreadId_t can2RecieveTaskHandle;
-const osThreadAttr_t can2RecieveTask_attributes = {
-  .name = "can2RecieveTask",
+/* Definitions for can2ReceiveTask */
+osThreadId_t can2ReceiveTaskHandle;
+const osThreadAttr_t can2ReceiveTask_attributes = {
+  .name = "can2ReceiveTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal7,
 };
-/* Definitions for can1RecieveQueue */
-osMessageQueueId_t can1RecieveQueueHandle;
-const osMessageQueueAttr_t can1RecieveQueue_attributes = {
-  .name = "can1RecieveQueue"
+/* Definitions for can1ReceiveQueue */
+osMessageQueueId_t can1ReceiveQueueHandle;
+const osMessageQueueAttr_t can1ReceiveQueue_attributes = {
+  .name = "can1ReceiveQueue"
 };
-/* Definitions for can2RecieveQueue */
-osMessageQueueId_t can2RecieveQueueHandle;
-const osMessageQueueAttr_t can2RecieveQueue_attributes = {
-  .name = "can2RecieveQueue"
+/* Definitions for can2ReceiveQueue */
+osMessageQueueId_t can2ReceiveQueueHandle;
+const osMessageQueueAttr_t can2ReceiveQueue_attributes = {
+  .name = "can2ReceiveQueue"
 };
 /* Definitions for motorsMutex */
 osMutexId_t motorsMutexHandle;
@@ -106,8 +106,8 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 
 void StartDefaultTask(void *argument);
 extern void can1SendFunc(void *argument);
-extern void can1RecieveFunc(void *argument);
-extern void can2RecieveFunc(void *argument);
+extern void can1ReceiveFunc(void *argument);
+extern void can2ReceiveFunc(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -141,11 +141,11 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* Create the queue(s) */
-  /* creation of can1RecieveQueue */
-  can1RecieveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1RecieveQueue_attributes);
+  /* creation of can1ReceiveQueue */
+  can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
 
-  /* creation of can2RecieveQueue */
-  can2RecieveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2RecieveQueue_attributes);
+  /* creation of can2ReceiveQueue */
+  can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -158,11 +158,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of can1SendTask */
   can1SendTaskHandle = osThreadNew(can1SendFunc, NULL, &can1SendTask_attributes);
 
-  /* creation of can1RecieveTask */
-  can1RecieveTaskHandle = osThreadNew(can1RecieveFunc, NULL, &can1RecieveTask_attributes);
+  /* creation of can1ReceiveTask */
+  can1ReceiveTaskHandle = osThreadNew(can1ReceiveFunc, NULL, &can1ReceiveTask_attributes);
 
-  /* creation of can2RecieveTask */
-  can2RecieveTaskHandle = osThreadNew(can2RecieveFunc, NULL, &can2RecieveTask_attributes);
+  /* creation of can2ReceiveTask */
+  can2ReceiveTaskHandle = osThreadNew(can2ReceiveFunc, NULL, &can2ReceiveTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

@@ -1,7 +1,7 @@
-#此文件从模板自动生成! 请勿更改!
+#THIS FILE IS AUTO GENERATED FROM THE TEMPLATE! DO NOT CHANGE!
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.25)
 
 # specify cross-compilers and tools
 set(CMAKE_C_COMPILER arm-none-eabi-gcc)
@@ -50,35 +50,95 @@ else ()
 endif ()
 
 include_directories(
-    Core/Inc
-    Core/oslib/app
-    Core/oslib/can
-    Core/oslib/debug
-    Core/oslib/uart
-    Core/oslib/utils
-    Core/oslib/
-    Drivers/STM32F4xx_HAL_Driver/Inc
-    Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
-    Middlewares/Third_Party/FreeRTOS/Source/include
-    Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
-    Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
-    Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include
+        Core/Inc
+        Drivers/STM32F4xx_HAL_Driver/Inc
+        Drivers/STM32F4xx_HAL_Driver/Inc/Legacy
+        Middlewares/Third_Party/FreeRTOS/Source/include
+        Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+        Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F
+        Drivers/CMSIS/Device/ST/STM32F4xx/Include
+        Drivers/CMSIS/Include
 )
 
 add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32F405xx)
 
-file(GLOB_RECURSE SOURCES "Core/*.*" )
+#set(
+#        CXX_Build_C_Sources
+#        Core/Src/freertos.c
+#        Core/Src/main.c
+#)
+#set_source_files_properties(${CXX_Build_C_Sources} PROPERTIES LANGUAGE CXX)
+
+set(
+        Core_INC
+        Core/Inc/can.h
+        Core/Inc/command.h
+        Core/Inc/config.h
+        Core/Inc/ctrl.h
+        Core/Inc/dma.h
+        Core/Inc/FreeRTOSConfig.h
+        Core/Inc/gpio.h
+        Core/Inc/main.h
+        Core/Inc/motorTask.h
+        Core/Inc/motorflash.h
+        Core/Inc/stm32f4xx_hal_conf.h
+        Core/Inc/stm32f4xx_it.h
+        Core/Inc/tim.h
+        Core/Inc/usart.h
+        Core/Inc/toolBoxScope.h
+        BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.h
+)
+set(
+        Core_SRC
+        Core/Src/can.c
+        Core/Src/command.c
+        Core/Src/ctrl.c
+        Core/Src/dma.c
+        Core/Src/freertos.c
+        Core/Src/gpio.c
+        Core/Src/main.c
+        Core/Src/motorTask.c
+        Core/Src/motorflash.c
+        Core/Src/stm32f4xx_hal_msp.c
+        Core/Src/stm32f4xx_hal_timebase_tim.c
+        Core/Src/stm32f4xx_it.c
+        Core/Src/syscalls.c
+        Core/Src/sysmem.c
+        Core/Src/system_stm32f4xx.c
+        Core/Src/tim.c
+        Core/Src/toolBoxScope.c
+        Core/Src/usart.c
+        BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.c
+        Core/Startup/startup_stm32f405rgtx.s
+)
+
 file(GLOB_RECURSE RTOS "Middlewares/*.*")
 file(GLOB_RECURSE HAL_Driver "Drivers/STM32F4xx_HAL_Driver/*.*")
-list(FILTER RTOS EXCLUDE REGEX "(.*IAR/.*)")
 
+add_definitions("-DUSE_OSLIB")
+add_subdirectory(OSLib)
+message(DEBUG "OSLib include these files: ${OSLib}")
+if(OSLib)
+    list(APPEND UserImport ${OSLib})
+    include_directories(${OSLib_IncDir})
+endif()
+
+add_subdirectory(BUPT_RobotTeam_Libraries)
+message(DEBUG "BUPT_RobotTeam_Libraries include these files: ${BUPTLib}")
+if (BUPTLib)
+    list(APPEND UserImport ${BUPTLib})
+    include_directories(${BUPTLib_Inc})
+endif ()
 
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F405RGTX_FLASH.ld)
+
 add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
 add_link_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)
 add_link_options(-T ${LINKER_SCRIPT})
 
-add_executable(${PROJECT_NAME}.elf ${SOURCES}  ${RTOS} ${HAL_Driver}  ${LINKER_SCRIPT})
+#add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+#target_link_libraries(${PROJECT_NAME}.elf OSLIB)
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${Core_INC} ${Core_SRC} ${RTOS} ${HAL_Driver} ${LINKER_SCRIPT} ${UserImport} ${UserCode})
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
