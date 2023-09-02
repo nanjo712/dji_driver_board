@@ -32,10 +32,10 @@ void RM_3508_init(DriverType *driver, uint8_t mode)
     memset(&(driver->curCtrl), 0, sizeof(CurCtrlType));
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
-    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, 0, VEL_KI_3508, 0, 0, 12, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, 0, VEL_KI_3508, 0, 0, 12, 0, 0.001,1,10};
     driver->velCtrl.maxOutput = CURRENT_MAX_3508;
     driver->velCtrl.maxSpeed = VEL_MAX_3508;
-    driver->posCtrl.pos_pid = (PID_s){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001,1,10};
     driver->curCtrl.maxCur = CURRENT_MAX_3508;
     driver->homingMode.current = 1.0f;
 
@@ -204,7 +204,10 @@ void MotorCtrl(void)
         // if (putcnt % 30 == 0)
         //     uprintf("%f\n", perCur[i]);
     }
-
+    if (perCur[0]!=0) {
+        int tag = 0;
+        uprintf("perCur is %f\r\n", perCur[tag]);
+    }
     SetCur(perCur);
     putcnt++;
     if (waveNum && putcnt % 20 == 0) //
@@ -264,6 +267,13 @@ float PosCtrl(PosCtrlType *posPid, int i)
 float VelCtrl(VelCtrlType *velPid)
 {
     float velPidOut;
+    static bool tag=0;
+
+    if (velPid->desireSpeed != 0 && tag==0)
+    {
+        tag=1;
+        OSLIB_UART_Printf(&huart3, "desireSpeed is %f\r\n", velPid->desireSpeed);
+    }
 
     velPidOut = PID_GetOutput(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
 
