@@ -151,7 +151,7 @@ void HomingModeCfg(int num, int vel, float cur)
 
 void SetVelCtrl(int num, int vel)
 {
-    drivers[num].velCtrl.desireSpeed = vel;
+    drivers[num].velCtrl.desireSpeed = vel * 0.1365333f ; // 1/60*8192/1000 8192是指编码器线数，1000是指1ms;
     drivers[num].velCtrl.desireSpeed = MaxMinLimit(drivers[num].velCtrl.desireSpeed,
                                                    drivers[num].velCtrl.maxSpeed);
 }
@@ -159,7 +159,7 @@ void SetVelCtrl(int num, int vel)
 void SetPosCtrl(int num, int Pos)
 {
     uprintf("posctrl num = %d, pos = %d\r\n", num, Pos);
-    drivers[num].posCtrl.desirePos = Pos;
+    drivers[num].posCtrl.desirePos = Pos * 1.0 / 360 * 8192.0f;
     drivers[num].posCtrl.arrivalInform = 1;
 }
 
@@ -172,7 +172,7 @@ void SetCurCtrl(int num, int cur)
 
 float GetVel(int n)
 {
-    return drivers[n].velCtrl.actualSpeed;
+    return drivers[n].velCtrl.actualSpeed / 0.1365333f; // 1/60*8192/1000 8192是指编码器线数，1000是指1ms;
 }
 
 float GetCur(int n)
@@ -182,5 +182,5 @@ float GetCur(int n)
 
 float GetPos(int n)
 {
-    return drivers[n].posCtrl.actulPos;
+    return drivers[n].posCtrl.actulPos / 8192.0f * 360.0f;
 }

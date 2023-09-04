@@ -249,9 +249,9 @@ static void Command_Motor_Sendwave(OSLIB_UART_Handle_t *uartHandle,int argc, cha
     }
     waveNum = num;
     if (waveNum == 0)
-        uprintf("stop sending wave");
+        uprintf("stop sending wave\r\n");
     else
-        uprintf("motor%d start to sendwave", num);
+        uprintf("motor%d start to sendwave\r\n", num);
 }
 
 static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])

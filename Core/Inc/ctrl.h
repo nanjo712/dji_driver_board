@@ -44,6 +44,7 @@ typedef enum
 #define VEL_MAX_3508 10000.0f
 #define VEL_KP_3508 0.1f
 #define VEL_KI_3508 1.0f
+#define VEL_KD_3508 0.5f
 #define POS_KP_3508 0.11f
 #define POS_KD_3508 0.01f
 
