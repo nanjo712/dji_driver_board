@@ -21,7 +21,7 @@
 #define UART3_RX_BUFFER_SIZE    128
 
 #define CAN1_ENABLED
- #define CAN2_ENABLED
+#define CAN2_ENABLED
 
 /* 串口命令行 */
 #define USE_OSLIB_UART_CLI      1

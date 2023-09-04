@@ -33,8 +33,8 @@ void can1ReceiveFunc(void *argument)
             return;
         osMutexAcquire(motorsMutexHandle, osWaitForever);
         motors[n].pos = (msg.payload.ui8[0] << 8) + msg.payload.ui8[1];
-        motors[n].vel = (int16_t)(msg.payload.ui8[2] << 8) + msg.payload.ui8[3];
-        motors[n].cur = (msg.payload.ui8[4] << 8) + msg.payload.ui8[5];
+        motors[n].vel = (msg.payload.ui8[2] << 8) + msg.payload.ui8[3];
+        motors[n].cur = (int16_t)(msg.payload.ui8[4] << 8) + msg.payload.ui8[5];
         motors[n].temp = msg.payload.ui8[6];
         osMutexRelease(motorsMutexHandle);
         if (firstFlag[n])
