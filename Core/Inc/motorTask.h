@@ -31,8 +31,8 @@ typedef enum
     NOINITPOSCFG,
 } CANOPTION;
 
-extern osMessageQueueId_t can1RecieveQueueHandle;
-extern osMessageQueueId_t can2RecieveQueueHandle;
+extern osMessageQueueId_t can1ReceiveQueueHandle;
+extern osMessageQueueId_t can2ReceiveQueueHandle;
 extern osSemaphoreId_t can1sendSemaHandle;
 
 void SetCur(float *cur);

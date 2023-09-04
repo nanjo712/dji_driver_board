@@ -1,7 +1,7 @@
 #ifndef CTRL_H
 #define CTRL_H
 
-#include "utils.h"
+#include "../BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.h"
 #include "stdint.h"
 #include "stm32f4xx.h"
 #include "toolBoxScope.h"
@@ -102,7 +102,7 @@ typedef struct
 
     float rightLimit;
 
-    PID_Struct speed_pid;
+    PID_s speed_pid;
 
     float output;
 
@@ -121,7 +121,7 @@ typedef struct
 
     float PosVel;
 
-    PID_Struct pos_pid;
+    PID_s pos_pid;
 
     float output;
 

@@ -106,6 +106,6 @@ void toolBox_scope(float *dataArray, int dataNum)
 	txBuffer[b_ind++] = (uint8_t)(crc >> 8);   //低校验位
 	txBuffer[b_ind++] = (uint8_t)(crc & 0xFF); //高校验位
 	txBuffer[b_ind++] = 3;					   //结束位
-	OSLIB_Uart_SendData(&huart_major, (uint8_t *)txBuffer, b_ind);
+	OSLIB_UART_SendData(&huart_major, (uint8_t *)txBuffer, b_ind);
 	// HAL_UART_Transmit(&huart1, (uint8_t *)txBuffer, b_ind, 0xffff);
 }
