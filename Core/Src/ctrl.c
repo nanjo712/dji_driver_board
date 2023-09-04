@@ -32,10 +32,10 @@ void RM_3508_init(DriverType *driver, uint8_t mode)
     memset(&(driver->curCtrl), 0, sizeof(CurCtrlType));
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
-    driver->velCtrl.speed_pid = (PID_Struct){VEL_KP_3508, 0, VEL_KI_3508, 0, 0, 12, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, 0, VEL_KI_3508, 0, 0, 12, 0, 0.001,1,16384};
     driver->velCtrl.maxOutput = CURRENT_MAX_3508;
     driver->velCtrl.maxSpeed = VEL_MAX_3508;
-    driver->posCtrl.pos_pid = (PID_Struct){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001,1,16384};
     driver->curCtrl.maxCur = CURRENT_MAX_3508;
     driver->homingMode.current = 1.0f;
 
@@ -55,10 +55,10 @@ void M_2006_init(DriverType *driver, uint8_t mode)
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
 
-    driver->velCtrl.speed_pid = (PID_Struct){VEL_KP_2006, 0, VEL_KI_2006, 0, 0, 2, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_2006, 0, VEL_KI_2006, 0, 0, 2, 0, 0.001};
     driver->velCtrl.maxOutput = CURRENT_MAX_2006;
     driver->velCtrl.maxSpeed = VEL_MAX_2006;
-    driver->posCtrl.pos_pid = (PID_Struct){POS_KP_2006, POS_KD_2006, 0, 0, 0, 5, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_2006, POS_KD_2006, 0, 0, 0, 5, 0, 0.001};
     driver->curCtrl.maxCur = CURRENT_MAX_2006;
     driver->homingMode.current = 1.0f;
 
@@ -75,10 +75,10 @@ void GM_6020_init(DriverType *driver, uint8_t mode)
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
 
-    driver->velCtrl.speed_pid = (PID_Struct){VEL_KP_6020, 0, VEL_KI_6020, 0, 0, 2, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_6020, 0, VEL_KI_6020, 0, 0, 2, 0, 0.001};
     driver->velCtrl.maxOutput = VOLTAGE_MAX_6020;
     driver->velCtrl.maxSpeed = VEL_MAX_6020;
-    driver->posCtrl.pos_pid = (PID_Struct){POS_KP_6020, POS_KD_6020, 0, 0, 0, 2, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_6020, POS_KD_6020, 0, 0, 0, 2, 0, 0.001};
     driver->curCtrl.maxCur = VOLTAGE_MAX_6020;
     driver->homingMode.current = 1.0f;
 
@@ -204,7 +204,6 @@ void MotorCtrl(void)
         // if (putcnt % 30 == 0)
         //     uprintf("%f\n", perCur[i]);
     }
-
     SetCur(perCur);
     putcnt++;
     if (waveNum && putcnt % 20 == 0) //
@@ -254,7 +253,7 @@ float PosCtrl(PosCtrlType *posPid, int i)
         InformPosArrival(i);
     }
 
-    posPidOut = PID_Release(&posPid->pos_pid, posPid->desirePos, posPid->actulPos);
+    posPidOut = PID_GetOutput(&posPid->pos_pid, posPid->desirePos, posPid->actulPos);
     
     posPid->output = MaxMinLimit(posPidOut, posPid->PosVel);
 
@@ -265,7 +264,15 @@ float VelCtrl(VelCtrlType *velPid)
 {
     float velPidOut;
 
-    velPidOut = PID_Release(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
+//    static float last_desireSpeed = 0;
+//
+//    if (velPid->desireSpeed!=last_desireSpeed)
+//    {
+//        last_desireSpeed = velPid->desireSpeed;
+//        OSLIB_UART_Printf(&huart3,"velPid->desireSpeed is %f\r\n",velPid->desireSpeed);
+//    }
+
+    velPidOut = PID_GetOutput(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
 
     velPid->output = MaxMinLimit(velPidOut, velPid->maxOutput);
 
@@ -277,15 +284,15 @@ float SpeedLimitMode(VelCtrlType *velPid, float pos)
     float velPidOut;
 
     if ((pos < velPid->leftLimit - 1000) && velPid->desireSpeed < 0)
-        velPidOut = PID_Release(&velPid->speed_pid, -velPid->desireSpeed, velPid->actualSpeed);
+        velPidOut = PID_GetOutput(&velPid->speed_pid, -velPid->desireSpeed, velPid->actualSpeed);
     else if (pos < velPid->leftLimit && velPid->desireSpeed < 0)
-        velPidOut = PID_Release(&velPid->speed_pid, 0, velPid->actualSpeed);
+        velPidOut = PID_GetOutput(&velPid->speed_pid, 0, velPid->actualSpeed);
     else if (pos > velPid->rightLimit + 1000 && velPid->desireSpeed > 0)
-        velPidOut = PID_Release(&velPid->speed_pid, -velPid->desireSpeed, velPid->actualSpeed);
+        velPidOut = PID_GetOutput(&velPid->speed_pid, -velPid->desireSpeed, velPid->actualSpeed);
     else if (pos > velPid->rightLimit && velPid->desireSpeed > 0)
-        velPidOut = PID_Release(&velPid->speed_pid, 0, velPid->actualSpeed);
+        velPidOut = PID_GetOutput(&velPid->speed_pid, 0, velPid->actualSpeed);
     else
-        velPidOut = PID_Release(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
+        velPidOut = PID_GetOutput(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
 
     velPid->output = MaxMinLimit(velPidOut, velPid->maxOutput);
 
@@ -331,8 +338,8 @@ float HomingMode(DriverType *driver)
         driver->posCtrl.desirePos = 0.0f;
         driver->velCtrl.desireSpeed = 0.0f;
         driver->velCtrl.output = 0.0f;
-        reset_PID(&(driver->velCtrl.speed_pid));
-        reset_PID(&(driver->posCtrl.pos_pid));
+        PID_Reset(&(driver->velCtrl.speed_pid));
+        PID_Reset(&(driver->posCtrl.pos_pid));
         driver->controlMode = POSITION_CONTROL_MODE;
         driver->posCtrl.arrivalInform = 0;
     }
