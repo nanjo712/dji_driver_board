@@ -67,10 +67,6 @@ static void CAN_Dispatch_Task(void *argument)
  */
 static void OSLIB_CAN_List32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t fid1, uint32_t fid2)
 {
-#if defined(CAN2)
-    if (hcan->Instance == CAN2)
-        bank += 14;
-#endif
     CAN_FilterTypeDef sFilterConfig;
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -104,10 +100,6 @@ static void OSLIB_CAN_List32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank,
                                          uint16_t fid1, uint16_t fid2, uint16_t fid3, uint16_t fid4)
 {
-#if defined(CAN2)
-    if (hcan->Instance == CAN2)
-        bank += 14;
-#endif
     CAN_FilterTypeDef sFilterConfig;
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
@@ -138,10 +130,6 @@ static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
  */
 static void OSLIB_CAN_MaskFilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id, uint32_t mask)
 {
-#if defined(CAN2)
-    if (hcan->Instance == CAN2)
-        bank += 14;
-#endif
     CAN_FilterTypeDef sFilterConfig;
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -186,19 +174,19 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
     // 配置CAN筛选器+插入哈希表
     // 扫描列表三遍, 每次处理一种类型的ID
     int bank = 0, index = 0;
-    const int bank_offset = (can_handle->hcan->Instance == CAN1) ? 0 : 14;
-    CAN_IDRecord_t *store32 = NULL; // 如果扩展帧ID不满2个, 临时存一下ID
+    const int bank_offset = (can_handle->hcan->Instance == CAN1) ? 0 : 14;  //CAN2的筛选器组编号从14开始
+    CAN_IDRecord_t *store32 = NULL;  // 扩展帧 ID 2个一组 存储每一组的第一个
     int store16_len = 0;
-    CAN_IDRecord_t *store16[3];     // 如果标准帧ID不满4个, 临时存一下ID
-    uint32_t and_value = 0xFFFFFFFF; // ID取与可以找到所有ID共同的1位
-    uint32_t or_value = 0x0;         // ID取或可以找到所有ID共同的0位
-    uint32_t mask = 0xFFFFFFFF;
+    CAN_IDRecord_t *store16[3];      // 标准帧 ID 4个一组 存储每一组的前三个
+    uint32_t and_value = 0xFFFFFFFF; // 用于取所有ID共同的'1'位
+    uint32_t or_value = 0x0;         // 用于取所有ID共同的‘0’位
+    uint32_t mask = 0xFFFFFFFF;      // 掩码初始值
 
-    // 首先处理VESC的ID, 每个VESC的ID需要采用32位掩码筛选器
+    // 处理VESC的ID, 每个VESC的ID需要采用32位掩码筛选器
     for (index = 0; index < can_record_list_size; index++)
     {
         if (bank >= 12)
-            goto bankout_vesc;
+            goto bankout_vesc; // 筛选器不够用
         CAN_IDRecord_t *record = &can_record_list[index];
         if (record->idtype != CAN_IDTYPE_VESC)
             continue;
@@ -212,7 +200,7 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
     for (index = 0; index < can_record_list_size; index++)
     {
         if (bank >= 12)
-            goto bankout_ext;
+            goto bankout_ext; // 筛选器不够用
         CAN_IDRecord_t *record = &can_record_list[index];
         if (record->idtype != CAN_IDTYPE_EXT)
             continue;

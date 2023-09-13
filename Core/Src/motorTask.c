@@ -61,7 +61,7 @@ void can2ReceiveFunc(void *argument)
         static CAN_ConnMessage msg;
         osMessageQueueGet(can2ReceiveQueueHandle, &msg, NULL, osWaitForever);
         /* user functional code start */
-        // uprintf("CAN2: Received [%x]\r\n", msg.id);
+//         uprintf("CAN2: Received [%x]\r\n", msg.id);
         switch (msg.id)
         {
         case 0x200 + BOARDID:

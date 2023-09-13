@@ -24,14 +24,20 @@ void OSLIB_CAN_Init()
 #if defined(CAN1_ENABLED)
     static OSLIB_CAN_Handle_t can1_handle;
     OSLIB_CAN_Handle_Init(&can1_handle, &hcan1, "CAN1", CAN1_RX_QUEUE_SIZE);
+    // CAN1句柄注册
+
     static OSLIB_CAN_Dispatch_t can1_dispatch;
     OSLIB_CAN_Dispatch_Init(&can1_dispatch, &can1_handle, CAN1_DISPATCH_RECORD_LIST, CAN1_DISPATCH_RECORD_LIST_SIZE);
+    // CAN1分发器注册 包括回调函数，消息队列和ID筛选器的配置
 #endif
 #if defined(CAN2_ENABLED)
     static OSLIB_CAN_Handle_t can2_handle;
     OSLIB_CAN_Handle_Init(&can2_handle, &hcan2, "CAN2", CAN2_RX_QUEUE_SIZE);
+    // CAN2句柄注册
+
     static OSLIB_CAN_Dispatch_t can2_dispatch;
     OSLIB_CAN_Dispatch_Init(&can2_dispatch, &can2_handle, CAN2_DISPATCH_RECORD_LIST, CAN2_DISPATCH_RECORD_LIST_SIZE);
+    // CAN2分发器注册 包括回调函数，消息队列和ID筛选器的配置
 #endif
 #if USE_OSLIB_CAN_EXAMPLE
     CAN_Example_Init();
