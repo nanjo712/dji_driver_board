@@ -32,7 +32,7 @@ void RM_3508_init(DriverType *driver, uint8_t mode)
     memset(&(driver->curCtrl), 0, sizeof(CurCtrlType));
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
-    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, 0, VEL_KI_3508, 0, 0, 12, 0, 0.001,1,16384};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, VEL_KD_3508, VEL_KI_3508, 0, 0, 12, 0, 0.001,1,16384};
     driver->velCtrl.maxOutput = CURRENT_MAX_3508;
     driver->velCtrl.maxSpeed = VEL_MAX_3508;
     driver->posCtrl.pos_pid = (PID_s){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001,1,16384};
@@ -228,7 +228,7 @@ void UpdateSpeedPos(DriverType *driver, MotorType *motor)
         deltaPos += driver->period;
     driver->posCtrl.actulPos += deltaPos;
 
-    driver->velCtrl.actualSpeed = (float)(motor->vel) * 0.1365333f; // 1/60*8912/1000
+    driver->velCtrl.actualSpeed = (float)(motor->vel) * 0.1365333f ; // 1/60*8192/1000 8192是指编码器线数，1000是指1ms
 }
 
 void InformPosArrival(int32_t motorId)
@@ -263,14 +263,6 @@ float PosCtrl(PosCtrlType *posPid, int i)
 float VelCtrl(VelCtrlType *velPid)
 {
     float velPidOut;
-
-//    static float last_desireSpeed = 0;
-//
-//    if (velPid->desireSpeed!=last_desireSpeed)
-//    {
-//        last_desireSpeed = velPid->desireSpeed;
-//        OSLIB_UART_Printf(&huart3,"velPid->desireSpeed is %f\r\n",velPid->desireSpeed);
-//    }
 
     velPidOut = PID_GetOutput(&velPid->speed_pid, velPid->desireSpeed, velPid->actualSpeed);
 
