@@ -55,10 +55,10 @@ void M_2006_init(DriverType *driver, uint8_t mode)
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
 
-    driver->velCtrl.speed_pid = (PID_s){VEL_KP_2006, 0, VEL_KI_2006, 0, 0, 2, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_2006, 0, VEL_KI_2006, 0, 0, 2, 0, 0.001,1,10000};
     driver->velCtrl.maxOutput = CURRENT_MAX_2006;
     driver->velCtrl.maxSpeed = VEL_MAX_2006;
-    driver->posCtrl.pos_pid = (PID_s){POS_KP_2006, POS_KD_2006, 0, 0, 0, 5, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_2006, POS_KD_2006, 0, 0, 0, 5, 0, 0.001,1,10000};
     driver->curCtrl.maxCur = CURRENT_MAX_2006;
     driver->homingMode.current = 1.0f;
 
@@ -75,10 +75,10 @@ void GM_6020_init(DriverType *driver, uint8_t mode)
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
 
-    driver->velCtrl.speed_pid = (PID_s){VEL_KP_6020, 0, VEL_KI_6020, 0, 0, 2, 0, 0.001};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_6020, 0, VEL_KI_6020, 0, 0, 2, 0, 0.001,1,10000};
     driver->velCtrl.maxOutput = VOLTAGE_MAX_6020;
     driver->velCtrl.maxSpeed = VEL_MAX_6020;
-    driver->posCtrl.pos_pid = (PID_s){POS_KP_6020, POS_KD_6020, 0, 0, 0, 2, 0, 0.001};
+    driver->posCtrl.pos_pid = (PID_s){POS_KP_6020, POS_KD_6020, 0, 0, 0, 2, 0, 0.001,1,10000};
     driver->curCtrl.maxCur = VOLTAGE_MAX_6020;
     driver->homingMode.current = 1.0f;
 
