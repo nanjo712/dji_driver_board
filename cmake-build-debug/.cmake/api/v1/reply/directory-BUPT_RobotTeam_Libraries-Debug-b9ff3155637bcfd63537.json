@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "BUPT_RobotTeam_Libraries",
+		"source" : "BUPT_RobotTeam_Libraries"
+	}
+}
