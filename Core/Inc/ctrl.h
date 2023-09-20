@@ -37,14 +37,14 @@ typedef enum
 
 
 //控制参数
-#define CURRENT_MAX_3508 18.0f
+#define CURRENT_MAX_3508 21.0f
 #define CURRENT_MAX_2006 8.0f
 #define VOLTAGE_MAX_6020 30.0f
 
 #define VEL_MAX_3508 10000.0f
-#define VEL_KP_3508 0.1f
+#define VEL_KP_3508 0.325f//0.3
 #define VEL_KI_3508 1.0f
-#define VEL_KD_3508 0.5f
+#define VEL_KD_3508 0.5f//0.5
 #define POS_KP_3508 0.11f
 #define POS_KD_3508 0.01f
 

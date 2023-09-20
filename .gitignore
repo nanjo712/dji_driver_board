@@ -32,4 +32,5 @@
 *.app
 
 cmake-build-debug-mingw-for-stm32
+cmake-build-debug
 .vscode
