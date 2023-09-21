@@ -1,3 +1,4 @@
+/cmake-build-debug
 # Prerequisites
 *.d
 
@@ -31,6 +32,6 @@
 *.out
 *.app
 
-cmake-build-debug-mingw-for-stm32
-cmake-build-debug
+cmake-build*
+.idea
 .vscode
