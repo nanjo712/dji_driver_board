@@ -42,7 +42,7 @@ typedef enum
 #define VOLTAGE_MAX_6020 30.0f
 
 #define VEL_MAX_3508 10000.0f
-#define VEL_KP_3508 0.25f//0.3
+#define VEL_KP_3508 0.1f//0.3
 #define VEL_KI_3508 1.0f
 #define VEL_KD_3508 0.5f//0.5
 #define POS_KP_3508 0.11f
