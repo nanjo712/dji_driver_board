@@ -89,14 +89,6 @@ void can2ReceiveFunc(void *argument)
 void can1SendFunc(void *argument)
 {
     osThreadExit();
-    for (;;)
-    {
-
-        osSemaphoreAcquire(can1sendSemaHandle, osWaitForever);
-        /* user functional code start */
-
-        /* user functional code end */
-    }
 }
 
 /**

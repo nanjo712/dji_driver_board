@@ -32,7 +32,7 @@ void RM_3508_init(DriverType *driver, uint8_t mode)
     memset(&(driver->curCtrl), 0, sizeof(CurCtrlType));
     memset(&(driver->velCtrl), 0, sizeof(VelCtrlType));
     driver->controlMode = mode;
-    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, VEL_KD_3508, VEL_KI_3508, 0, 0, 12, 0, 0.001,1,16384};
+    driver->velCtrl.speed_pid = (PID_s){VEL_KP_3508, VEL_KD_3508, VEL_KI_3508, 0, 0, 12, 16384, 0.001,0.01,16384};
     driver->velCtrl.maxOutput = CURRENT_MAX_3508;
     driver->velCtrl.maxSpeed = VEL_MAX_3508;
     driver->posCtrl.pos_pid = (PID_s){POS_KP_3508, POS_KD_3508, 0, 0, 0, 0, 0, 0.001,1,16384};
@@ -208,9 +208,9 @@ void MotorCtrl(void)
     putcnt++;
     if (waveNum && putcnt % 20 == 0) //
     {
-        wave[0] = drivers[waveNum - 1].velCtrl.actualSpeed;
+        wave[0] = drivers[waveNum - 1].velCtrl.actualSpeed / 0.1365333f / 60; // 1/60*8192/1000 8192是指编码器线数，1000是指1ms
         wave[1] = drivers[waveNum - 1].posCtrl.actulPos;
-        wave[2] = drivers[waveNum - 1].velCtrl.desireSpeed;
+        wave[2] = drivers[waveNum - 1].velCtrl.desireSpeed / 0.1365333f / 60; // 1/60*8192/1000 8192是指编码器线数，1000是指1ms
         wave[3] = perCur[waveNum - 1];
         toolBox_scope(wave, 4);
     }
