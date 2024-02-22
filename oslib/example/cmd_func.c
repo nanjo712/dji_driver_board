@@ -1,5 +1,5 @@
-#include "oslib_config.h"
 
+#include "oslib_config.h"
 #ifdef OSLIB_UART_MODULE_ENABLED
 
 #include "uart/oslib_uart.h"
@@ -12,35 +12,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cmsis_os2.h"
-#include "ctrl.h"
 #include "motorflash.h"
-#include "motorTask.h"
-#include "../BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.h"
-#include "command.h"
+#include "../../user_motor/command.h"
 
 /* 在这里添加命令回调函数的定义或外部声明 */
-static void Command_SetPosPID(OSLIB_UART_Handle_t *uartHandle,int argc,char *argv[])
-{
-    int num=atoi(argv[1]);num--;
-    float kp,ki,kd;
-    kp=atof(argv[2]);ki=atof(argv[3]);kd=atof(argv[4]);
-    drivers[num].posCtrl.pos_pid.Kp=kp;
-    drivers[num].posCtrl.pos_pid.Ki=ki;
-    drivers[num].posCtrl.pos_pid.Kd=kd;
-    uprintf("set motor:%d pospid \r\n  kp:%.4f\r\n  ki:%.4f\r\n  kd:%.4f\r\n"
-    ,num,kp,ki,kd);
-}
-static void Command_SetVelPID(OSLIB_UART_Handle_t *uartHandle,int argc,char *argv[])
-{
-    int num=atoi(argv[1]);num--;
-    float kp,ki,kd;
-    kp=atof(argv[2]);ki=atof(argv[3]);kd=atof(argv[4]);
-    drivers[num].velCtrl.speed_pid.Kp=kp;
-    drivers[num].velCtrl.speed_pid.Ki=ki;
-    drivers[num].velCtrl.speed_pid.Kd=kd;
-    uprintf("set motor:%d velpid \r\n  kp:%.4f\r\n  ki:%.4f\r\n  kd:%.4f\r\n"
-    ,num,kp,ki,kd);
-}
+
 static void Command_Hello(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
 {
     uprintf("Hello SimpleLib!\r\n");
@@ -63,8 +39,8 @@ static void Command_Motor_On(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
             uprintf("illegal motorId [%d]\r\n", num);
             continue;
         }
-        uprintf("motor%d is on\r\n", num);
-        MotorOn(num - 1);
+        uprintf("motor_cxx%d is on\r\n", num);
+        motor_On(num - 1);
     }
 }
 
@@ -78,8 +54,8 @@ static void Command_Motor_Off(OSLIB_UART_Handle_t *uartHandle,int argc, char *ar
             uprintf("illegal motorId [%d]\r\n", num);
             continue;
         }
-        uprintf("motor%d is off\r\n", num);
-        MotorOff(num - 1);
+        uprintf("motor_cxx%d is off\r\n", num);
+        motor_Off(num - 1);
     }
 }
 
@@ -96,25 +72,8 @@ static void Command_Motor_Velcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    VelLoopCfg(num - 1);
-    uprintf("motor%d's mode changes to velloopmode\r\n", num);
-}
-
-static void Command_Motor_LimitVelcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
-{
-    if (argc != 2)
-    {
-        uprintf("Param num is error: limitvelcfg <motorid>\r\n");
-        return;
-    }
-    int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
-    {
-        uprintf("illegal motorId [%d]\r\n", num);
-        return;
-    }
-    LimitVelCfg(num - 1);
-    uprintf("motor%d's mode changes to limitvelloopmode\r\n", num);
+    write_MotorCtrlMode(num - 1,VEL_Mode);
+    uprintf("motor_cxx%d's mode changes to velloopmode\r\n", num);
 }
 
 static void Command_Motor_Poscfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -131,9 +90,8 @@ static void Command_Motor_Poscfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    PosLoopCfg(num - 1, vel);
-    uprintf("motor%d's mode changes to posloopmode,maxv is %d\r\n",
-            num, vel);
+    write_MotorCtrlMode(num - 1, POS_Mode);
+    uprintf("motor_cxx%d's mode changes to posloopmode,maxv is %d\r\n",num, vel);
 }
 
 static void Command_Motor_Curcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -149,35 +107,8 @@ static void Command_Motor_Curcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    CurLoopCfg(num - 1);
-    uprintf("motor%d's mode changes to curloopmode\r\n", num);
-}
-
-static void Command_Homing(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
-{
-    if (argc != 4)
-    {
-        uprintf("Param num is error");
-        return;
-    }
-    int num = atoi(argv[1]);
-    int vel = atoi(argv[2]);
-    float cur = atof(argv[3]);
-    if (num < 0 || num > 4)
-    {
-        uprintf("illegal motorId [%d]\r\n", num);
-        return;
-    }
-    if(fabsf(cur) > 7){
-        uprintf("cur is too huge!(< 3)\r\n");
-        return ;
-    }
-    if(abs(vel) > 500){
-        uprintf("vel is too huge!(< 500)\r\n");
-        return ;
-    }
-    HomingModeCfg(num - 1, vel, cur);
-    uprintf("motor%d's mode changes to homingmode\r\n", num);
+    write_MotorCtrlMode(num - 1,CUR_Mode);
+    uprintf("motor_cxx%d's mode changes to curloopmode\r\n", num);
 }
 
 static void Command_Motor_Velctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -194,8 +125,8 @@ static void Command_Motor_Velctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    SetVelCtrl(num - 1, vel);
-    uprintf("motor%d's speed is set to %d\r\n", num, vel);
+    write_MotorTarget(num - 1, vel);
+    uprintf("motor_cxx%d's speed is set to %d\r\n", num, vel);
 }
 
 static void Command_Motor_Posctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -212,8 +143,8 @@ static void Command_Motor_Posctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    SetPosCtrl(num - 1, pos);
-    uprintf("motor%d's pos is set to %d\r\n", num, pos);
+    write_MotorTarget(num - 1, pos);
+    uprintf("motor_cxx%d's pos is set to %d\r\n", num, pos);
 }
 
 static void Command_Motor_Curctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -230,28 +161,8 @@ static void Command_Motor_Curctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    SetCurCtrl(num - 1, cur);
-    uprintf("motor%d's cur is set to %d\r\n", num, cur);
-}
-
-static void Command_Motor_Sendwave(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
-{
-    if (argc != 2)
-    {
-        uprintf("Param num is error: sendwave <motorid>\r\n");
-        return;
-    }
-    int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
-    {
-        uprintf("illegal motorId [%d]\r\n", num);
-        return;
-    }
-    waveNum = num;
-    if (waveNum == 0)
-        uprintf("stop sending wave\r\n");
-    else
-        uprintf("motor%d start to sendwave\r\n", num);
+    write_MotorTarget(num - 1, cur);
+    uprintf("motor_cxx%d's cur is set to %d\r\n", num, cur);
 }
 
 static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -267,11 +178,9 @@ static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, ch
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    float vel = GetVel(num -1);
-    float pos = GetPos(num - 1);
-    float cur = GetCur(num - 1);
-    uprintf("motor Type = %d,motor Mode = %d\r\n", motorType[num - 1], motorControlMode[num - 1]);
-    uprintf("vel=%f\r\n pos=%f\r\n cur=%f\r\n", vel, pos, cur);
+    float now = get_MotorState(num -1);
+    uprintf("motor_cxx Type = %d,motor_cxx Mode = %d\r\n", get_MotorType(num - 1), get_MotorCtrlMode(num - 1));
+    uprintf("now state:%f\r\n", now);
 }
 
 static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -282,7 +191,7 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
         uprintf("Param num is error: setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020 \r\n");
         uprintf(" \
-        controlMode: 1 is CurLoop, 2 is SpeedLoop, 3 is PositionLoop, 4 is Homing)> \r\n \
+        controlMode: 1 is SpeedLoop, 2 is PositionLoop, 3 is CurLoop)> \r\n \
         maxPosVel: maxvel in PositionLoop\r\n");
         return;
     }
@@ -298,20 +207,14 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
         uprintf("illegal motorType [%d]\r\n", motor);
         return;
     }
-    motorType[num - 1] = motor;
-
     int mode = atoi(argv[3]);
     if (mode < 1 || mode > 5)
     {
         uprintf("illegal controlMode [%d]\r\n", mode);
         return;
     }
-    motorControlMode[num - 1] = mode;
-
-    if (mode == POSITION_CONTROL_MODE)
-    {
-        maxPosVel[num - 1] = atoi(argv[4]);
-    }
+    write_MotorType(num - 1,motor);
+    write_MotorCtrlMode(num - 1 , mode);
     motor_WriteParam();
     DriverInit();
 }
@@ -387,22 +290,17 @@ UART_CLI_Command_t UART_CommandList[] =
     {"motoron", "motoron <motorid1> <motorid2> <...>", Command_Motor_On},
     {"motoroff", "motoroff <motorid1> <motorid2> <...>", Command_Motor_Off},
     {"velcfg", "velcfg <motorid>", Command_Motor_Velcfg},
-    {"limitvelcfg", "limitvelcfg <motorid>", Command_Motor_LimitVelcfg},
     {"poscfg", "poscfg <motorid> <posVel>", Command_Motor_Poscfg},
     {"curcfg", "curcfg <motorid>", Command_Motor_Curcfg},
-    {"homing", "homing <motorid> <vel> <cur>", Command_Homing},
     {"velctrl", "velctrl <motorid> <vel>", Command_Motor_Velctrl},
     {"posctrl", "posctrl <motorid> <pos>", Command_Motor_Posctrl},
     {"curctrl", "curctrl <motorid> <cur>", Command_Motor_Curctrl},
-    {"sendwave", "sendwave <motorid>", Command_Motor_Sendwave},
     {"info", "info <motorid>", Command_Motor_PrintInfo},
     {"setmotor", "setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020, \r\n \
         controlMode: 1 is CurLoop, 2 is SpeedLoop, 3 is PosLoop, 4 is Homing, 5 is SPEEDLIMIT)> \r\n \
         maxPosVel: maxvel in PosLoop",
      Command_SetMotor},
-    {"setpospid","setpospid <motorid> <kp> <ki> <kd>",Command_SetPosPID},
-    {"setvelpid","setvelpid <motorid> <kp> <ki> <kd>",Command_SetVelPID},
 #ifdef OSLIB_CAN_MODULE_ENABLED
     { "can1send", "CAN1 send message", Command_CanSend },
     {"cansend2", "CAN2 send message", Command_CanSend2},

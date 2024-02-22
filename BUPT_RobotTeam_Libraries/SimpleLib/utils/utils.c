@@ -5,38 +5,6 @@ void PID_init(PID_s *PID)
 }
 
 /**
- * @brief 位置式PID
- * 
- * @param PID 
- * @param target 
- * @param now 
- * @return float 
- */
-float PID_GetOutput(PID_s *PID, float target, float now)
-{
-  float err;
-  float delta_err;
-  float result;
-
-  err = target - now;
-  delta_err = err - PID->last_err;
-
-  delta_err *= 0.384f;
-  delta_err += PID->last_delta_err * 0.615f; //低通滤波
-
-  PID->last_err = err;
-
-  PID->int_sum += err * PID->int_duty; // 积分量
-
-  __LIMIT(PID->int_sum, PID->int_max); // 限制积分量大小
-  PID->last_delta_err = delta_err;
-
-  result = err * PID->Kp + delta_err * PID->Kd + PID->int_sum * PID->Ki;
-  __LIMIT(result, PID->ctrl_max);
-  return result;
-}
-
-/**
  * @brief 增量式PID
  * 
  * @param PID 

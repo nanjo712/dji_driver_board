@@ -27,8 +27,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oslib.h"
-#include "ctrl.h"
-#include "motorTask.h"
+#include "../user_motor/command.h"
+#include "../motor_cxx/message.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,9 +105,6 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
-extern void can1SendFunc(void *argument);
-extern void can1ReceiveFunc(void *argument);
-extern void can2ReceiveFunc(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -156,7 +153,6 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of can1SendTask */
-  can1SendTaskHandle = osThreadNew(can1SendFunc, NULL, &can1SendTask_attributes);
 
   /* creation of can1ReceiveTask */
   can1ReceiveTaskHandle = osThreadNew(can1ReceiveFunc, NULL, &can1ReceiveTask_attributes);
@@ -185,12 +181,13 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-//   for(;;)
-//   {
-//
-//     osDelay(1);
-//   }
-  osThreadExit();
+    DriverInit();
+    while(1)
+    {
+        MotorCtrl();
+        osDelay(1);
+    }
+//  osThreadExit();
   /* USER CODE END StartDefaultTask */
 }
 

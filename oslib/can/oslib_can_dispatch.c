@@ -34,8 +34,8 @@ static void CAN_Dispatch_Task(void *argument)
         record = (CAN_IDRecord_t *)HashTable_get(
             can_dispatch->table, 
             (const void *)OSLIB_CAN_HashKey(
-                message.ide == CAN_ID_EXT ? message.id & VescMask : message.id, 
-                message.ide, message.rtr
+                //message.ide == CAN_ID_EXT ? message.id & VescMask :
+                message.id,message.ide, message.rtr
             )
         );
         if (NULL != record)

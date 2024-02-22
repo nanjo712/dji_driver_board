@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define BOARDID (1)
+extern int BOARDID;
 #define GM6020_USED (0)
 
 

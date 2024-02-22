@@ -95,43 +95,44 @@ extern "C"
 //弧度制转换为角度制
 #define __RAD2ANGLE(x) (((x)*1.0) / PI * 180.0f)
 
-	// PID结构体，成员分别为Kp Kd Ki i last_err i_max last_d I_TIME
-	typedef struct PID_s
-	{
-		float Kp;
-		float Kd;
-		float Ki;
-		float int_sum;
-		float last_err;
-		float last_last_err; // 用于增量式PID
-		float int_max;
-		float last_delta_err;
-		float int_duty; // 积分周期（实际上决定积分的快慢）
-		float ctrl_max; // 控制量限幅,是绝对值
-	} PID_s;
+// PID结构体，成员分别为Kp Kd Ki i last_err i_max last_d I_TIME
+typedef struct PID_s
+{
+    float Kp;
+    float Ki;
+    float Kd;
+    float int_duty; // 积分周期（实际上决定积分的快慢）
+    float int_max;
+    float ctrl_max; // 控制量限幅,是绝对值
+    float int_sum;
+    float last_err;
+    float last_last_err; // 用于增量式PID
+    float last_delta_err;
+    float target;
+} PID_s;
 
-	typedef struct Point2D_s
-	{
-		float x;
-		float y;
-	} Point2D_s; // 二维空间点
+typedef struct Point2D_s
+{
+    float x;
+    float y;
+} Point2D_s; // 二维空间点
 
-	typedef struct Point3D_s
-	{
-		float x;
-		float y;
-		float z;
-	} Point3D_s;
+typedef struct Point3D_s
+{
+    float x;
+    float y;
+    float z;
+} Point3D_s;
 
-	float PID_GetOutput(PID_s *PID, float target, float now);
-	float PID_GetIncrementOutput(PID_s *PID, float target, float now);
-	void PID_Reset(PID_s *s);
-	void PID_init();
+float PID_GetOutput(PID_s *PID, float target, float now);
+float PID_GetIncrementOutput(PID_s *PID, float target, float now);
+void PID_Reset(PID_s *s);
+void PID_init();
 
-	float AngleLimit180(float angle);
-	float AngleLimitPI(float angle);
-	float AngleLimitDiff(float a, float b);
-	float AngleBetweenPoints(float start_x, float start_y, float end_x, float end_y);
+float AngleLimit180(float angle);
+float AngleLimitPI(float angle);
+float AngleLimitDiff(float a, float b);
+float AngleBetweenPoints(float start_x, float start_y, float end_x, float end_y);
 #endif // SLIB_USE_UTILS
 
 #ifdef __cplusplus

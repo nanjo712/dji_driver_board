@@ -82,9 +82,9 @@ CAN_IDRecord_t CAN2_RecordList[] = {
     // {0x10, CAN_IDTYPE_EXT, NULL, CanCallback_EchoID},
     CANx_Record_Callback(0x10, CAN_IDTYPE_EXT, CanCallback_EchoID),
     CANx_Record_Callback(0x200,CAN_ID_STD,CanCallback_EchoID),
-    CANx_Record_Queue(0x200+BOARDID,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
-    CANx_Record_Queue(0x204+BOARDID,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
-    CANx_Record_Queue(0x208+BOARDID,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
+    CANx_Record_Queue(0x201,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
+    CANx_Record_Queue(0x205,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
+    CANx_Record_Queue(0x209,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
 #if USE_OSLIB_CAN_EXAMPLE
     // {0x100, CAN_IDTYPE_STD, &ExampleCanTaskQueue, NULL},
     CANx_Record_Queue(0x100, CAN_IDTYPE_STD, &ExampleCanTaskQueue),

@@ -16,6 +16,10 @@
   *
   ******************************************************************************
   */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -29,7 +33,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oslib.h"
-#include "ctrl.h"
+#include "config.h"
+#ifdef __cplusplus
+};
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,19 +56,25 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+#ifdef __cplusplus
+}
+#endif
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 int time_1ms_cnt = 0;
+int BOARDID = 0;
 /* USER CODE END 0 */
 
 /**

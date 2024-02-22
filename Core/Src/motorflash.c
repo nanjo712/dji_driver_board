@@ -1,6 +1,7 @@
-#include <main.h>
-#include <ctrl.h>
-#include <motorflash.h>
+#include "main.h"
+#include "motorflash.h"
+#include "../../user_motor/command.h"
+#include "config.h"
 
 #define FLASH_Param ((uint32_t *)(0x08020000))
 int motor_WriteParam(void)
@@ -22,16 +23,13 @@ int motor_WriteParam(void)
 
     for (int i = 0; i < 4; i++)
     {
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[i], (uint32_t)motorType[i]);
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[i], (uint32_t)get_MotorType(i));
     }
     for (int i = 0; i < 4; i++)
     {
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[i + 4], (uint32_t)motorControlMode[i]);
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[i + 4], (uint32_t) get_MotorCtrlMode(i));
     }
-    for (int i = 0; i < 4; i++)
-    {
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[i + 8], (uint32_t)maxPosVel[i]);
-    }
+    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, (uint32_t)&FLASH_Param[8], (uint32_t) BOARDID);
     HAL_FLASH_Lock(); // FLASH上锁
     return 0;
 }
@@ -40,15 +38,12 @@ int motor_ReadParam(void)
 {
     for (int i = 0; i < 4; i++)
     {
-        motorType[i] = (MotorType_TypeDef)FLASH_Param[i];
+        write_MotorType((MotorType_Def)FLASH_Param[i],i);
     }
     for (int i = 0; i < 4; i++)
     {
-        motorControlMode[i] = (ControlMode)FLASH_Param[i + 4];
+        write_MotorCtrlMode((MotorCtrlMode_Def)FLASH_Param[i + 4],i);
     }
-    for (int i = 0; i < 4; i++)
-    {
-        maxPosVel[i] = (uint32_t)FLASH_Param[i + 8];
-    }
+    BOARDID = FLASH_Param[8];
     return 0;
 }

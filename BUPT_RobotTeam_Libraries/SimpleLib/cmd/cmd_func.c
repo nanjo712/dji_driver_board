@@ -126,57 +126,57 @@ void CMD_RMMtr_Ctrl(int argc, char *argv[])
 {
     if (strcmp(argv[1], "motoron") == 0)
     {
-        uprintf("motor%d is on\r\n", atoi(argv[2]));
+        uprintf("motor_cxx%d is on\r\n", atoi(argv[2]));
         DJIBoard_MotorOn(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "motoroff") == 0)
     {
-        uprintf("motor%d is off\r\n", atoi(argv[2]));
+        uprintf("motor_cxx%d is off\r\n", atoi(argv[2]));
         DJIBoard_MotorOff(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "velcfg") == 0)
     {
-        uprintf("motor%d's mode changes to velloopmode\r\n", atoi(argv[2]));
+        uprintf("motor_cxx%d's mode changes to velloopmode\r\n", atoi(argv[2]));
         DJIBoard_VelLoopCfg(CAN1, atoi(argv[2]), 0, 0);
     }
     else if (strcmp(argv[1], "poscfg") == 0)
     {
-        uprintf("motor%d's mode changes to posLoopMode,maxv is %d\r\n", atoi(argv[2]), atoi(argv[3]));
+        uprintf("motor_cxx%d's mode changes to posLoopMode,maxv is %d\r\n", atoi(argv[2]), atoi(argv[3]));
         DJIBoard_PosLoopCfg(CAN1, atoi(argv[2]), 0, 0, atoi(argv[3]));
     }
     else if (strcmp(argv[1], "curcfg") == 0)
     {
-        uprintf("motor%d's mode changes to curloopmode\r\n", atoi(argv[2]));
+        uprintf("motor_cxx%d's mode changes to curloopmode\r\n", atoi(argv[2]));
         DJIBoard_CurLoopCfg(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "velctr") == 0)
     {
-        uprintf("motor%d's speed is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
+        uprintf("motor_cxx%d's speed is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
         DJIBoard_VelCrl(CAN1, atoi(argv[2]), atoi(argv[3]));
     }
     else if (strcmp(argv[1], "posctr") == 0)
     {
-        uprintf("motor%d's pos is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
+        uprintf("motor_cxx%d's pos is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
         DJIBoard_PosCtrl(CAN1, atoi(argv[2]), ABSOLUTE_MODE, atoi(argv[3]));
     }
     else if (strcmp(argv[1], "curctr") == 0)
     {
-        uprintf("motor%d's pos is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
+        uprintf("motor_cxx%d's pos is set to %d\r\n", atoi(argv[2]), atoi(argv[3]));
         DJIBoard_CurCrl(CAN1, atoi(argv[2]), atoi(argv[3]));
     }
     else if (strcmp(argv[1], "qcur") == 0)
     {
-        uprintf("query for motor%d's cur\r\n", atoi(argv[2]));
+        uprintf("query for motor_cxx%d's cur\r\n", atoi(argv[2]));
         DJIBoard_ReadActualCur(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "qpos") == 0) // 向东大驱动板发送查询CAN消息
     {
-        uprintf("query for motor%d's pos\r\n", atoi(argv[2]));
+        uprintf("query for motor_cxx%d's pos\r\n", atoi(argv[2]));
         DJIBoard_ReadActualPos(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "qvel") == 0)
     {
-        uprintf("query for motor%d's vel\r\n", atoi(argv[2]));
+        uprintf("query for motor_cxx%d's vel\r\n", atoi(argv[2]));
         DJIBoard_ReadActualVel(CAN1, atoi(argv[2]));
     }
     else if (strcmp(argv[1], "setallvel") == 0)
@@ -423,11 +423,11 @@ void CMD_SwitchPrintMotorStatus(int argc, char **argv)
     SW_PrintMotorStatus_Flag = (SW_PrintMotorStatus_Flag + 1) % 2;
     if (SW_PrintMotorStatus_Flag == 1)
     {
-        uprintf("--Start print motor status!\r\n");
+        uprintf("--Start print motor_cxx status!\r\n");
     }
     else
     {
-        uprintf("--Stop print motor status!\r\n");
+        uprintf("--Stop print motor_cxx status!\r\n");
     }
 }
 
@@ -439,7 +439,7 @@ void CMD_FuncInit(void)
     CMD_Add("hello", "", CMD_Hello);
 
 #ifdef USE_MOTORLIB
-    //motor
+    //motor_cxx
     CMD_Add("vesc_switch_print_info", "0 to close;1 to open", CMD_VESC_SwitchPrintInfo);
     CMD_Add("rm", "", CMD_RMMtr_Ctrl);
     CMD_Add("SwitchPrintMotorStatus", "press to change ", CMD_SwitchPrintMotorStatus);

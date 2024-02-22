@@ -15,7 +15,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # project settings
 project(dji_driver_board C CXX ASM)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_C_STANDARD 11)
 
 #Uncomment for hardware floating point
@@ -72,33 +72,26 @@ add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32F405xx)
 set(
         Core_INC
         Core/Inc/can.h
-        Core/Inc/command.h
         Core/Inc/config.h
-        Core/Inc/ctrl.h
         Core/Inc/dma.h
         Core/Inc/FreeRTOSConfig.h
         Core/Inc/gpio.h
         Core/Inc/main.h
-        Core/Inc/motorTask.h
-        Core/Inc/motorflash.h
         Core/Inc/stm32f4xx_hal_conf.h
         Core/Inc/stm32f4xx_it.h
         Core/Inc/tim.h
         Core/Inc/usart.h
         Core/Inc/toolBoxScope.h
+        Core/Inc/motorflash.h
         BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.h
 )
 set(
         Core_SRC
         Core/Src/can.c
-        Core/Src/command.c
-        Core/Src/ctrl.c
         Core/Src/dma.c
         Core/Src/freertos.c
         Core/Src/gpio.c
         Core/Src/main.c
-        Core/Src/motorTask.c
-        Core/Src/motorflash.c
         Core/Src/stm32f4xx_hal_msp.c
         Core/Src/stm32f4xx_hal_timebase_tim.c
         Core/Src/stm32f4xx_it.c
@@ -108,6 +101,7 @@ set(
         Core/Src/tim.c
         Core/Src/toolBoxScope.c
         Core/Src/usart.c
+        Core/Src/motorflash.c
         BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.c
         Core/Startup/startup_stm32f405rgtx.s
 )
@@ -130,7 +124,23 @@ if (BUPTLib)
     include_directories(${BUPTLib_Inc})
 endif ()
 
-set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F405RGTX_FLASH.ld)
+add_subdirectory(motor_cxx)
+if (Motor_CXX)
+    message(WARNING "motor_cxx include these files: ${Motor_CXX}")
+    list(APPEND UserImport ${Motor_CXX})
+    message(DEBUG "motor_cxx include these files: ${Motor_Inc}")
+    include_directories(${Motor_Inc})
+endif ()
+
+add_subdirectory(user_motor)
+if (User_Motor_CXX)
+    message(WARNING "user_motor include these files: ${User_Motor_CXX}")
+    list(APPEND UserImport ${User_Motor_CXX})
+    message(DEBUG "motor_cxx include these files: ${User_Motor_Inc}")
+    include_directories(${User_Motor_Inc})
+endif ()
+
+set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F405RGTX_FLASH.ld )
 
 add_link_options(-Wl,-gc-sections,--print-memory-usage,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map)
 add_link_options(-mcpu=cortex-m4 -mthumb -mthumb-interwork)

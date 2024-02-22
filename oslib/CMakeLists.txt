@@ -185,6 +185,7 @@ message(DEBUG "OSLib_utils: ${OSLib_utils} ")
 list(APPEND OSLib_Src
     ${OSLib_port} ${OSLib_can} ${OSLib_uart}
     ${OSLib_utils} ${OSLib_Debug} ${OSLib_components} ${OSLib_example})
+
 set(OSLib_IncDir
     ${OSLib_Inc}
     PARENT_SCOPE
