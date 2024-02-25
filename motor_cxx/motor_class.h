@@ -47,10 +47,11 @@ protected:
     MotorPID_Def MotorPID;
     MotorState_Def MotorState;
     MotorCtrlMode_Def MotorCtrlMode;
-    uint16_t Final_OutPut;
+    int16_t Final_OutPut;
+    uint16_t Final_K;
     uint8_t On;
     CanId can_ID;
-    float PID_GetOutPut(PID_s PID);
+    float PID_GetOutPut(PID_s *PID);
     virtual void Vel_Ctrl();//基础为PID控制，可在继承中扩展
     virtual void Pos_Ctrl();
     virtual void Cur_Ctrl();

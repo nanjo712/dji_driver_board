@@ -75,6 +75,7 @@ void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN 0 */
 int time_1ms_cnt = 0;
 int BOARDID = 0;
+int N = 0;
 /* USER CODE END 0 */
 
 /**

@@ -55,28 +55,28 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityAboveNormal7,
 };
 /* Definitions for can1SendTask */
 osThreadId_t can1SendTaskHandle;
 const osThreadAttr_t can1SendTask_attributes = {
   .name = "can1SendTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal2,
+  .priority = (osPriority_t) osPriorityAboveNormal3,
 };
 /* Definitions for can1ReceiveTask */
 osThreadId_t can1ReceiveTaskHandle;
 const osThreadAttr_t can1ReceiveTask_attributes = {
   .name = "can1ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .priority = (osPriority_t) osPriorityAboveNormal2,
 };
 /* Definitions for can2ReceiveTask */
 osThreadId_t can2ReceiveTaskHandle;
 const osThreadAttr_t can2ReceiveTask_attributes = {
   .name = "can2ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal7,
+  .priority = (osPriority_t) osPriorityAboveNormal5,
 };
 /* Definitions for can1ReceiveQueue */
 osMessageQueueId_t can1ReceiveQueueHandle;

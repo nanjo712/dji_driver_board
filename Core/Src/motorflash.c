@@ -38,11 +38,11 @@ int motor_ReadParam(void)
 {
     for (int i = 0; i < 4; i++)
     {
-        write_MotorType((MotorType_Def)FLASH_Param[i],i);
+        Motor_Init(i,(MotorType_Def)FLASH_Param[i]);
     }
     for (int i = 0; i < 4; i++)
     {
-        write_MotorCtrlMode((MotorCtrlMode_Def)FLASH_Param[i + 4],i);
+        write_MotorCtrlMode(i,(MotorCtrlMode_Def)FLASH_Param[i + 4]);
     }
     BOARDID = FLASH_Param[8];
     return 0;

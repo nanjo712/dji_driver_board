@@ -11,6 +11,7 @@ extern "C"
 #include "message.h"
 #include "motor_class.h"
 Can_Message_Def send_Msg[5];
+uint8_t receive_mark;
 
 void  Receive_Choose(CAN_ConnMessage msg){
     for(int i=0;i<4;i++)
@@ -49,7 +50,7 @@ int add_Id_address(int Id)
 void Send_Message(){
     for(int i=0 ;i<5;i++) {
         if(send_Msg[i].used > 0)
-            OSLIB_CAN_SendMessage(&hcan2, CAN_ID_STD, send_Msg[i].can_Id, &send_Msg[i].msg);
+            OSLIB_CAN_SendMessage(&hcan1, CAN_ID_STD, send_Msg[i].can_Id, &send_Msg[i].msg);
     }
 }
 

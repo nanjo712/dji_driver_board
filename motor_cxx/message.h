@@ -25,6 +25,8 @@ extern struct Can_Message_Def send_Msg[5];
 int get_Id_address(int Id);
 int add_Id_address(int Id);
 void Send_Message();
+extern uint8_t receive_mark;
+
 #ifdef __cplusplus
 }
 #endif

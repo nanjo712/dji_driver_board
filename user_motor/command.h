@@ -45,6 +45,7 @@ typedef struct MotorPID_Def{
 uint8_t If_used(int num);//判断是否使用
 
 void Motor_Init(int num, MotorType_Def Type);//初始化
+void PrintfMotorsInfo();
 MotorType_Def get_MotorType(int num);//返回电机类型
 MotorCtrlMode_Def get_MotorCtrlMode(int num);//返回控制模式
 float get_MotorState(int num);

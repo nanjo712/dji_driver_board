@@ -10,7 +10,7 @@ void* Motor::operator new(size_t)
         if ( !c_map[i] )
         {
             c_map[i] = 1;
-            ret = c_buffer + i * sizeof(Motor);
+            ret = c_buffer + i * Max_Size;
             break;
         }
     }
@@ -40,11 +40,11 @@ Motor::Motor(){
 void Motor::Motor_SetTarget(float target) {
     switch (MotorCtrlMode) {
         case VEL_Mode:
-            MotorPID.Pos_PID.target = target;
+            MotorPID.Vel_PID.target = target;
         case POS_Mode:
             MotorPID.Pos_PID.target = target;
         case CUR_Mode:
-            MotorPID.Pos_PID.target = target;
+            MotorPID.Cur_PID.target = target;
     }
 }
 

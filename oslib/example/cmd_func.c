@@ -183,6 +183,16 @@ static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, ch
     uprintf("now state:%f\r\n", now);
 }
 
+static void Command_Motor_PrintInfoS(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
+{
+    if (argc != 1)
+    {
+        uprintf("Param num is error: infos\r\n");
+        return;
+    }
+    PrintfMotorsInfo();
+}
+
 static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
 {
 //    OSLIB_UART_Printf(&huart3, "%s\r\n %d\n %d\n %d\n",argv[0],atoi(argv[1]), atoi(argv[2]),atoi(argv[3]));
@@ -191,7 +201,7 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
         uprintf("Param num is error: setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020 \r\n");
         uprintf(" \
-        controlMode: 1 is SpeedLoop, 2 is PositionLoop, 3 is CurLoop)> \r\n \
+        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is CurLoop)> \r\n \
         maxPosVel: maxvel in PositionLoop\r\n");
         return;
     }
@@ -216,7 +226,7 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
     write_MotorType(num - 1,motor);
     write_MotorCtrlMode(num - 1 , mode);
     motor_WriteParam();
-    DriverInit();
+    PrintfMotorsInfo();
 }
 
 #ifdef OSLIB_CAN_MODULE_ENABLED
@@ -295,10 +305,11 @@ UART_CLI_Command_t UART_CommandList[] =
     {"velctrl", "velctrl <motorid> <vel>", Command_Motor_Velctrl},
     {"posctrl", "posctrl <motorid> <pos>", Command_Motor_Posctrl},
     {"curctrl", "curctrl <motorid> <cur>", Command_Motor_Curctrl},
+    {"infos", "infos", Command_Motor_PrintInfoS},
     {"info", "info <motorid>", Command_Motor_PrintInfo},
     {"setmotor", "setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020, \r\n \
-        controlMode: 1 is CurLoop, 2 is SpeedLoop, 3 is PosLoop, 4 is Homing, 5 is SPEEDLIMIT)> \r\n \
+        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is CurLoop, 4 is Homing, 5 is SPEEDLIMIT)> \r\n \
         maxPosVel: maxvel in PosLoop",
      Command_SetMotor},
 #ifdef OSLIB_CAN_MODULE_ENABLED

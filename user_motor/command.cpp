@@ -25,6 +25,10 @@ void Motor_Init( int num, MotorType_Def Type){
 
 void DriverInit(){
     motor_ReadParam();
+    PrintfMotorsInfo();
+}
+
+void PrintfMotorsInfo(){
     for (int i = 0; i < 4; i++)
     {
         uprintf("motorType[%d] = %d\r\n", i, P_Motor[i]->Get_Type());
@@ -32,9 +36,6 @@ void DriverInit(){
     for (int i = 0; i < 4; i++)
     {
         uprintf("motorCtrlMode[%d] = %d\r\n", i, P_Motor[i]->Get_CtrlMode());
-    }
-    for (int i = 0; i < 4; i++){
-        P_Motor[i]->Init(i);
     }
 }
 
@@ -55,7 +56,8 @@ uint8_t If_used(int num){
 }
 
 void write_MotorType(int num,MotorType_Def Type){
-    P_Motor[num]->Write_Type(Type);
+    delete P_Motor[num];
+    Motor_Init(num,Type);
 }
 
 void write_MotorCtrlMode(int num, MotorCtrlMode_Def CtrlMode){
