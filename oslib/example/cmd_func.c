@@ -14,6 +14,9 @@
 #include "cmsis_os2.h"
 #include "motorflash.h"
 #include "../../user_motor/command.h"
+#include "config.h"
+#include "../user_motor/command.h"
+#include "oslib_debug.h"
 
 /* 在这里添加命令回调函数的定义或外部声明 */
 
@@ -34,7 +37,7 @@ static void Command_Motor_On(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
     for (int i = 1; i < argc; i++)
     {
         int num = atoi(argv[i]);
-        if (num < 0 || num > 4)
+        if (num < 1 || num > 4)
         {
             uprintf("illegal motorId [%d]\r\n", num);
             continue;
@@ -49,7 +52,7 @@ static void Command_Motor_Off(OSLIB_UART_Handle_t *uartHandle,int argc, char *ar
     for (int i = 1; i < argc; i++)
     {
         int num = atoi(argv[i]);
-        if (num < 0 || num > 4)
+        if (num < 1 || num > 4)
         {
             uprintf("illegal motorId [%d]\r\n", num);
             continue;
@@ -67,13 +70,18 @@ static void Command_Motor_Velcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
         return;
     }
     int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorCtrlMode(num - 1,VEL_Mode);
-    uprintf("motor_cxx%d's mode changes to velloopmode\r\n", num);
+    if(If_used(num-1))
+    {
+        write_MotorCtrlMode(num - 1,VEL_Mode);
+        uprintf("motor_cxx%d's mode changes to velloopmode\r\n", num);
+    }
+    else
+        uprintf("motor_cxx%d has not been used\r\n",num);
 }
 
 static void Command_Motor_Poscfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -85,13 +93,43 @@ static void Command_Motor_Poscfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
     }
     int num = atoi(argv[1]);
     int vel = atoi(argv[2]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorCtrlMode(num - 1, POS_Mode);
-    uprintf("motor_cxx%d's mode changes to posloopmode,maxv is %d\r\n",num, vel);
+    if(If_used(num-1))
+    {
+        write_MotorCtrlMode(num - 1, POS_Mode);
+        write_MotorMaxPosVel(num-1,vel);
+        uprintf("motor_cxx%d's mode changes to posloopmode,maxv is %d\r\n",num, vel);
+    }
+    else
+        uprintf("motor_cxx%d has not been used\r\n",num);
+}
+
+static void Command_Motor_MultiPoscfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
+{
+    if (argc != 3)
+    {
+        uprintf("Param num is error: multiposcfg <motorid> <posVel>\r\n");
+        return;
+    }
+    int num = atoi(argv[1]);
+    int vel = atoi(argv[2]);
+    if (num < 1 || num > 4)
+    {
+        uprintf("illegal motorId [%d]\r\n", num);
+        return;
+    }
+    if(If_used(num-1))
+    {
+        write_MotorCtrlMode(num - 1, Multi_POS_Mode);
+        write_MotorMaxPosVel(num-1,vel);
+        uprintf("motor_cxx%d's mode changes to multiposloopmode,maxv is %d\r\n",num, vel);
+    }
+    else
+        uprintf("motor_cxx%d has not been used\r\n",num);
 }
 
 static void Command_Motor_Curcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -102,13 +140,18 @@ static void Command_Motor_Curcfg(OSLIB_UART_Handle_t *uartHandle,int argc, char 
         return;
     }
     int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorCtrlMode(num - 1,CUR_Mode);
-    uprintf("motor_cxx%d's mode changes to curloopmode\r\n", num);
+    if(If_used(num-1))
+    {
+        write_MotorCtrlMode(num - 1,CUR_Mode);
+        uprintf("motor_cxx%d's mode changes to curloopmode\r\n", num);
+    }
+    else
+        uprintf("motor_cxx%d has not been used\r\n",num);
 }
 
 static void Command_Motor_Velctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -120,13 +163,25 @@ static void Command_Motor_Velctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
     }
     int num = atoi(argv[1]);
     int vel = atoi(argv[2]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorTarget(num - 1, vel);
-    uprintf("motor_cxx%d's speed is set to %d\r\n", num, vel);
+    if(If_used(num-1))
+    {
+        if(get_MotorCtrlMode(num-1) == VEL_Mode){
+            write_MotorTarget(num - 1, vel);
+            uprintf("motor_cxx%d's speed is set to %d\r\n", num, vel);
+            return;
+        }
+        else
+            uprintf("motor_cxx%d's ctrlmode isn't velloopmode \r\n",num);
+    }
+    else{
+        uprintf("motor_cxx%d has not been used \r\n",num);
+        return;
+    }
 }
 
 static void Command_Motor_Posctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -138,13 +193,49 @@ static void Command_Motor_Posctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
     }
     int num = atoi(argv[1]);
     int pos = atoi(argv[2]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorTarget(num - 1, pos);
-    uprintf("motor_cxx%d's pos is set to %d\r\n", num, pos);
+    if(If_used(num-1))
+    {
+        if(get_MotorCtrlMode(num-1) == POS_Mode){
+            write_MotorTarget(num - 1, pos);
+            uprintf("motor_cxx%d's pos is set to %d\r\n", num, pos);
+        }
+        else
+            uprintf("motor_cxx%d's ctrlmode isn't posloopmode \r\n",num);
+    }
+    else
+        uprintf("motor_cxx%d has not been used \r\n",num);
+}
+
+static void Command_Motor_MultiPosctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
+{
+    if (argc != 3)
+    {
+        uprintf("Param num is error: multiposctrl <motorid> <pos>\r\n");
+        return;
+    }
+    int num = atoi(argv[1]);
+    int pos = atoi(argv[2]);
+    if (num < 1 || num > 4)
+    {
+        uprintf("illegal motorId [%d]\r\n", num);
+        return;
+    }
+    if(If_used(num-1))
+    {
+        if(get_MotorCtrlMode(num-1) == Multi_POS_Mode){
+            write_MotorTarget(num - 1, pos);
+            uprintf("motor_cxx%d's pos is set to %d\r\n", num, pos);
+        }
+        else
+            uprintf("motor_cxx%d's ctrlmode isn't multiposloopmode \r\n",num);
+    }
+    else
+        uprintf("motor_cxx%d has not been used \r\n",num);
 }
 
 static void Command_Motor_Curctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -156,13 +247,22 @@ static void Command_Motor_Curctrl(OSLIB_UART_Handle_t *uartHandle,int argc, char
     }
     int num = atoi(argv[1]);
     int cur = atoi(argv[2]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    write_MotorTarget(num - 1, cur);
-    uprintf("motor_cxx%d's cur is set to %d\r\n", num, cur);
+    if(If_used(num-1))
+    {
+        if(get_MotorCtrlMode(num-1) == CUR_Mode){
+            write_MotorTarget(num - 1, cur);
+            uprintf("motor_cxx%d's cur is set to %d\r\n", num, cur);
+        }
+        else
+            uprintf("motor_cxx%d's ctrlmode isn't curloopmode \r\n",num);
+    }
+    else
+        uprintf("motor_cxx%d has not been used \r\n",num);
 }
 
 static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -173,14 +273,20 @@ static void Command_Motor_PrintInfo(OSLIB_UART_Handle_t *uartHandle,int argc, ch
         return;
     }
     int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
     }
-    float now = get_MotorState(num -1);
-    uprintf("motor_cxx Type = %d,motor_cxx Mode = %d\r\n", get_MotorType(num - 1), get_MotorCtrlMode(num - 1));
-    uprintf("now state:%f\r\n", now);
+    if(If_used(num - 1))
+    {
+        uprintf("motor_cxx Type = %d,motor_cxx Mode = %d\r\n", get_MotorType(num - 1), get_MotorCtrlMode(num - 1));
+        float now = get_MotorState(num -1);
+        uprintf("now state:%f\r\n", now);
+    }
+    else{
+        uprintf("motor %d has not been used\r\n",num);
+    }
 }
 
 static void Command_Motor_PrintInfoS(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -191,6 +297,7 @@ static void Command_Motor_PrintInfoS(OSLIB_UART_Handle_t *uartHandle,int argc, c
         return;
     }
     PrintfMotorsInfo();
+    uprintf("%BoardID: %d\r\n",BOARDID);
 }
 
 static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
@@ -201,12 +308,11 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
         uprintf("Param num is error: setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020 \r\n");
         uprintf(" \
-        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is CurLoop)> \r\n \
-        maxPosVel: maxvel in PositionLoop\r\n");
+        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is MulitPosLoop, 4 is CurLoop)> \r\n ");
         return;
     }
     int num = atoi(argv[1]);
-    if (num < 0 || num > 4)
+    if (num < 1 || num > 4)
     {
         uprintf("illegal motorId [%d]\r\n", num);
         return;
@@ -227,6 +333,23 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
     write_MotorCtrlMode(num - 1 , mode);
     motor_WriteParam();
     PrintfMotorsInfo();
+}
+
+static void Command_Board_Setid(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[]){
+    if (argc != 2)
+    {
+        uprintf("Param num is error:setid <boardid>\r\n");
+        return;
+    }
+    int num = atoi(argv[1]);
+    if(num < 1 || num > 4)
+    {
+        uprintf("illegal boardId [%d]\r\n", num);
+        return;
+    }
+    BOARDID = num;
+    motor_WriteParam();
+    uprintf("SWBoardID is set to [%d]\r\n",BOARDID);
 }
 
 #ifdef OSLIB_CAN_MODULE_ENABLED
@@ -301,16 +424,19 @@ UART_CLI_Command_t UART_CommandList[] =
     {"motoroff", "motoroff <motorid1> <motorid2> <...>", Command_Motor_Off},
     {"velcfg", "velcfg <motorid>", Command_Motor_Velcfg},
     {"poscfg", "poscfg <motorid> <posVel>", Command_Motor_Poscfg},
+    {"multiposcfg", "multiposcfg <motorid> <posVel>", Command_Motor_MultiPoscfg},
     {"curcfg", "curcfg <motorid>", Command_Motor_Curcfg},
     {"velctrl", "velctrl <motorid> <vel>", Command_Motor_Velctrl},
     {"posctrl", "posctrl <motorid> <pos>", Command_Motor_Posctrl},
+    {"multiposctrl", "multiposctrl <motorid> <pos>", Command_Motor_MultiPosctrl},
     {"curctrl", "curctrl <motorid> <cur>", Command_Motor_Curctrl},
+    {"setid", "setid <boardid>",Command_Board_Setid},
     {"infos", "infos", Command_Motor_PrintInfoS},
     {"info", "info <motorid>", Command_Motor_PrintInfo},
     {"setmotor", "setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020, \r\n \
-        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is CurLoop, 4 is Homing, 5 is SPEEDLIMIT)> \r\n \
-        maxPosVel: maxvel in PosLoop",
+        controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is MulitPosLoop, 4 is CurLoop\r\n \
+        maxPosVel: Pos's maxvel",
      Command_SetMotor},
 #ifdef OSLIB_CAN_MODULE_ENABLED
     { "can1send", "CAN1 send message", Command_CanSend },

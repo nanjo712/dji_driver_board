@@ -9,6 +9,8 @@ set(
         ${CMAKE_CURRENT_SOURCE_DIR}/message.h
         ${CMAKE_CURRENT_SOURCE_DIR}/motor_cxx.h
         ${CMAKE_CURRENT_SOURCE_DIR}/message.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/motor_math.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/motor_math.cpp
 )
 set_source_files_properties(${Motor_SRC} PROPERTIES LANGUAGE CXX)
 set(Motor_CXX ${Motor_SRC} PARENT_SCOPE)

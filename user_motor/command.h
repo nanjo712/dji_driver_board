@@ -8,6 +8,7 @@ extern "C"
 #endif
 #include "stdint.h"
 #include "SimpleLib/utils/utils.h"
+#include "oslib_can.h"
 
 typedef enum
 {
@@ -21,6 +22,7 @@ typedef enum
 {
     VEL_Mode = 1,
     POS_Mode,
+    Multi_POS_Mode,
     CUR_Mode,
     N_Mode = 255
 } MotorCtrlMode_Def;
@@ -31,9 +33,11 @@ typedef struct CanId{
 };
 
 typedef struct MotorState_Def{
-    int32_t Pos_Now;
-    int32_t Vel_Now;
-    int16_t Cur_Now;
+    float Pos_Now;
+    float Vel_Now;
+    float Cur_Now;
+    float Pos_Begin;
+    float Pos_Last;
 };
 
 typedef struct MotorPID_Def{
@@ -41,6 +45,19 @@ typedef struct MotorPID_Def{
     PID_s Pos_PID;
     PID_s Cur_PID;
 };
+
+
+typedef enum
+{
+    MOTORON = 1,
+    MOTOROFF,
+    VELCFG,
+    POSCFG,
+    CURCFG,
+    VELCTRL,
+    POSCTRL,
+    CURCTRL
+} CANOPTION;
 
 uint8_t If_used(int num);//判断是否使用
 
@@ -53,11 +70,15 @@ float get_MotorState(int num);
 void write_MotorType(int num, MotorType_Def Type);//改写电机类型
 void write_MotorCtrlMode(int num, MotorCtrlMode_Def CtrlMode);//改写控制模式
 void write_MotorTarget(int num, float target);//改写目标值
+void write_MotorMaxPosVel(int num, int vel);
 void motor_On(int num);
 void motor_Off(int num);
 
 void DriverInit();
 void MotorCtrl();
+void VelCtrlAll(CAN_Message *msg);
+void PosCtrlAll(CAN_Message *msg);
+void can2Handle(CAN_Message *msg);
 #ifdef __cplusplus
 }
 #endif

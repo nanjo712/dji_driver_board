@@ -3,25 +3,25 @@
 #include "../motor_cxx/motor_cxx.h"
 
 //RM_3608常量
-const float CURRENT_MAX_3508 = 20.0f;
-const float VEL_MAX_3508  = 10000.0f;
-const float VEL_KP_3508 = 0.01f;
-const float VEL_KI_3508 = 1.0f;
+const float CURRENT_MAX_3508 = 16384.0f;
+const float VEL_KP_3508 = 200.0f;
+const float VEL_KI_3508 = 8.0f;
 const float VEL_KD_3508 = 0.0f;
-const float POS_KP_3508 = 0.11f;
+const float POS_KP_3508 = 4.0f;
 const float POS_KI_3508 = 0.0f;
-const float POS_KD_3508 = 0.01f;
-const float CUR_KP_3508 = 0.0f;
+const float POS_KD_3508 = 0.0f;
+const float CUR_KP_3508 = 1.0f;
 const float CUR_KI_3508 = 0.0f;
 const float CUR_KD_3508 = 0.0f;
+const float Reduction_Ratio_3508 = 3509.0f / 187.0f;
 
 class Motor_RM_3508 : public Motor {
 public:
     void Init(int num);
+    void Ctrl_Reset();
+    void Write_CtrlMode(MotorCtrlMode_Def CtrlMode);
     void Data_Receive(CAN_ConnMessage msg);
     void Motor_MessageCreate(int num);
-protected:
-    float filter_constant = 0;
 };
 
 

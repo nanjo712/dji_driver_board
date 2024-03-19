@@ -10,13 +10,14 @@ extern "C"
 
 #include "message.h"
 #include "motor_class.h"
+#include <string.h>
 Can_Message_Def send_Msg[5];
 uint8_t receive_mark;
 
 void  Receive_Choose(CAN_ConnMessage msg){
     for(int i=0;i<4;i++)
     {
-        if(msg.id == P_Motor[i]->Get_CanId().get_Id)
+        if(msg.id == P_Motor[i]->Get_CanId().get_Id && If_used(i))
         {
             P_Motor[i]->Data_Receive(msg);
         }
@@ -44,7 +45,18 @@ int add_Id_address(int Id)
         send_Msg[i].can_Id = Id;
         break;
     }
+    send_Msg[F_num].msg.in[0] = 0;
+    send_Msg[F_num].msg.in[1] = 0;
     return F_num;
+}
+
+void delete_Id_address(int Id){
+    for(int i=0;i<5;i++)
+    {
+        if(send_Msg[i].can_Id == Id)
+            send_Msg[i].used--;
+        break;
+    }
 }
 
 void Send_Message(){
@@ -56,7 +68,7 @@ void Send_Message(){
 
 /**
  * @brief can1接收消息线程
- *        用来接受大疆电机报文消息
+ *        用来接受电机报文消息
  * @param argument
  */
 
@@ -90,14 +102,12 @@ void can2ReceiveFunc(void *argument)
         static CAN_ConnMessage msg;
         osMessageQueueGet(can2ReceiveQueueHandle, &msg, NULL, osWaitForever);
         /* user functional code start */
-//         uprintf("CAN2: Received [%x]\r\n", msg.id);
-        switch (msg.id)
-        {
-
-            default:
-                break;
-        }
-
+        if(msg.id == 0x200 + BOARDID)
+            can2Handle(&(msg.payload));
+        if(msg.id == 0x204 + BOARDID) // 控制四个电机速度环
+            VelCtrlAll(&(msg.payload));
+        if(msg.id == 0x208 + BOARDID) // 控制四个电机位置环
+            PosCtrlAll(&(msg.payload));
         /* user functional code end */
     }
 }

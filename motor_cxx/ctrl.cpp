@@ -1,6 +1,6 @@
 #include "motor_class.h"
-#include "../user_motor/command.h"
 #include "message.h"
+#include "motor_math.h"
 
 extern osMutexId_t motorsMutexHandle;
 
@@ -17,12 +17,9 @@ void MotorCtrl(){
 }
 
 //Motor基类的控制函数
-float Motor::PID_GetOutPut(PID_s *PID){
-    float err;
+float Motor::PID_GetOutPut(PID_s *PID, float err){
     float delta_err;
-    volatile float now = Get_State();
     float result;
-    err = PID->target - now;
     delta_err = err - PID->last_err;
 
     delta_err *= 0.384f;
@@ -42,25 +39,39 @@ float Motor::PID_GetOutPut(PID_s *PID){
 
 void Motor::Vel_Ctrl()
 {
-    Final_OutPut = Final_K * PID_GetOutPut(&MotorPID.Vel_PID);
+    float temp_err = MotorPID.Vel_PID.target - Get_State();
+    Final_OutPut = PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor::Pos_Ctrl()
 {
     float Temp_OutPut;
+    float temp_err;
 
-    Temp_OutPut = PID_GetOutPut(&MotorPID.Pos_PID);
+    temp_err = MotorPID.Pos_PID.target - Get_State();
+    Temp_OutPut = PID_GetOutPut(&MotorPID.Pos_PID, LimitPos_f(temp_err,1));
 
     MotorPID.Vel_PID.target = Temp_OutPut;
-
-    __LIMIT_FROM_TO(Temp_OutPut,100,5 * MotorPID.Pos_PID.last_err)
-
-    Final_OutPut = PID_GetOutPut(&MotorPID.Vel_PID);
+    temp_err = MotorPID.Vel_PID.target - MotorState.Vel_Now;
+    Final_OutPut =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor::Cur_Ctrl()
 {
-    Final_OutPut = PID_GetOutPut(&MotorPID.Cur_PID);
+    float temp_err = MotorPID.Cur_PID.target - Get_State();
+    Final_OutPut =  PID_GetOutPut(&MotorPID.Cur_PID,temp_err);
+}
+
+void Motor::Multi_Pos_Ctrl() {
+    float Temp_OutPut;
+    float temp_err;
+
+    temp_err = MotorPID.Pos_PID.target - Get_State();
+    Temp_OutPut = PID_GetOutPut(&MotorPID.Pos_PID,temp_err);
+
+    MotorPID.Vel_PID.target = Temp_OutPut;
+    temp_err = MotorPID.Vel_PID.target - MotorState.Vel_Now;
+    Final_OutPut =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor:: Motor_CtrlMode_Choose(){
@@ -70,6 +81,9 @@ void Motor:: Motor_CtrlMode_Choose(){
             break;
         case POS_Mode:
             Pos_Ctrl();
+            break;
+        case Multi_POS_Mode:
+            Multi_Pos_Ctrl();
             break;
         case CUR_Mode:
             Cur_Ctrl();

@@ -1,8 +1,9 @@
-# DJI-Driver-Board 大疆驱动板
+# DJI-Driver-Board0-Cxx_feature 大疆驱动板
 
 ## 1. 项目简介
+使用了C with Class 进行编写，构造了电机类
 
-支持RM3508、M2006、GM6020等多种大疆电机控制，重新设计了can控制报文
+预先实例化了RM3508、M2006、GM6020三种电机，并编写了相应控制代码，可完全兼容旧版
 
 已经迁移到新版队库，后续会转变为子模块模式引入，方便后续维护
 
@@ -10,15 +11,12 @@
 
 **电机工况不同，PID不同，不要随意上传！**
 
-## 2. 使用说明
+## 2. 更新情况
 
-在`Core/Inc/config.h`中配置两项
+1.不用手动配置BAORDID以及GM6020_USED，BOARDID可通过CAN或者串口修改
 
-`BOARDID`这块板子的ID
+2.对于使用
 
-`GM6020_USED`是否需要驱动GM6020电机
-
-**注意：若使用GM6020电机，需要将GM6020电机ID设置在1~4之间。将C620、C610电调ID设置在5~8之间。C620和C610在板子中实际ID为电调显示的ID减去4**
 
 ## 3. CAN通讯报文格式
 
@@ -88,12 +86,6 @@
             <td>curCtrl cur</td>    
             <td colspan="2">8</td>    
             <td colspan="4">cur</td>    
-        </tr>
-        <tr>
-            <td>Homing vel cur</td>    
-            <td colspan="2">9</td>    
-            <td colspan="2">vel</td>    
-            <td colspan="2">cur</td>    
         </tr>
         <tr>
             <td>velCtrlAll</td>

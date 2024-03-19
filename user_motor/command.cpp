@@ -17,8 +17,11 @@ void Motor_Init( int num, MotorType_Def Type){
             P_Motor[num] = new Motor_M_2006;
             P_Motor[num]->Init(num);
             break;
+        case GM_6020:
+            P_Motor[num] = new Motor_GM_6020;
+            P_Motor[num]->Init(num);
+            break;
         default:
-
             break;
     }
 }
@@ -73,5 +76,71 @@ void motor_On(int num){
 }
 
 void motor_Off(int num){
-    P_Motor[num]->Turn_Off();
+    if(If_used(num)) {
+        delete_Id_address(P_Motor[num]->Get_CanId().send_Id);
+        P_Motor[num]->Turn_Off();
+    }
+}
+
+void VelCtrlAll(CAN_Message *msg)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if(If_used(i) && get_MotorCtrlMode(i) == VEL_Mode)
+            write_MotorTarget(i, msg->i16[i]);
+    }
+}
+
+void PosCtrlAll(CAN_Message *msg)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        if(If_used(i) && get_MotorCtrlMode(i) == POS_Mode)
+            write_MotorTarget(i, msg->i16[i]);
+    }
+}
+
+void write_MotorMaxPosVel(int num, int vel){
+    P_Motor[num]->Write_MaxPosVel(num,vel);
+}
+
+void can2Handle(CAN_Message *msg){
+    uint16_t motorId = msg->ui16[0];
+    uint16_t option = msg->ui16[1];
+    int32_t num = msg->in[1];
+    if (motorId < 1 || motorId > 4)
+        return;
+    motorId -= 1;
+    switch (option)
+    {
+        case MOTORON:
+            motor_On(motorId);
+            break;
+        case MOTOROFF:
+            motor_Off(motorId);
+            break;
+        case VELCFG:
+            write_MotorCtrlMode(motorId,VEL_Mode);
+            break;
+        case POSCFG:
+            write_MotorCtrlMode(motorId,POS_Mode);
+            break;
+        case CURCFG:
+            write_MotorCtrlMode(motorId,CUR_Mode);
+            break;
+        case VELCTRL:
+            if(If_used(motorId) && get_MotorCtrlMode(motorId) == VEL_Mode)
+                write_MotorTarget(motorId, num);
+            break;
+        case POSCTRL:
+            if(If_used(motorId) && get_MotorCtrlMode(motorId) == POS_Mode)
+                write_MotorTarget(motorId, num);
+            break;
+        case CURCTRL:
+            if(If_used(motorId) && get_MotorCtrlMode(motorId) == CUR_Mode)
+                write_MotorTarget(motorId, num);
+            break;
+        default:
+            break;
+    }
 }

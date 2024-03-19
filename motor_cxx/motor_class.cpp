@@ -1,6 +1,7 @@
 #include "motor_class.h"
 #include "message.h"
 #include "../user_motor/user_motor.h"
+#include "motor_math.h"
 
 void* Motor::operator new(size_t)
 {
@@ -34,6 +35,7 @@ void Motor::operator delete(void* p)
 Motor* P_Motor[Motor::COUNT];
 //基类的函数
 Motor::Motor(){
+    On = 0;
     MotorType = NONE;
 }
 
@@ -42,6 +44,8 @@ void Motor::Motor_SetTarget(float target) {
         case VEL_Mode:
             MotorPID.Vel_PID.target = target;
         case POS_Mode:
+            MotorPID.Pos_PID.target = LimitPos_f(target,1);
+        case Multi_POS_Mode:
             MotorPID.Pos_PID.target = target;
         case CUR_Mode:
             MotorPID.Cur_PID.target = target;
@@ -54,6 +58,8 @@ float Motor::Get_State()
         case VEL_Mode:
             return MotorState.Vel_Now;
         case POS_Mode:
+            return LimitPos_f(MotorState.Pos_Now,1);
+        case Multi_POS_Mode:
             return MotorState.Pos_Now;
         case CUR_Mode:
             return MotorState.Cur_Now;
@@ -84,6 +90,7 @@ MotorCtrlMode_Def Motor::Get_CtrlMode(){
 
 void Motor::Turn_On() {
     On = 1;
+    PosUsed_Flag = 1;
 }
 
 void Motor::Turn_Off() {
@@ -96,5 +103,11 @@ uint8_t Motor::If_On() {
 
 void Motor::Write_CtrlMode(MotorCtrlMode_Def CtrlMode){
     MotorCtrlMode = CtrlMode;
+    Ctrl_Reset();
+    if(CtrlMode == Multi_POS_Mode ||CtrlMode == POS_Mode)
+        PosUsed_Flag = 1;
 }
 
+void Motor::Write_MaxPosVel(int num, int vel) {
+    MotorPID.Pos_PID.ctrl_max = vel;
+}
