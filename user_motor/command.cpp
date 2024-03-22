@@ -125,6 +125,9 @@ void can2Handle(CAN_Message *msg){
         case POSCFG:
             write_MotorCtrlMode(motorId,POS_Mode);
             break;
+        case MULTIPOSCFG:
+            write_MotorCtrlMode(motorId,Multi_POS_Mode);
+            break;
         case CURCFG:
             write_MotorCtrlMode(motorId,CUR_Mode);
             break;
@@ -134,6 +137,10 @@ void can2Handle(CAN_Message *msg){
             break;
         case POSCTRL:
             if(If_used(motorId) && get_MotorCtrlMode(motorId) == POS_Mode)
+                write_MotorTarget(motorId, num);
+            break;
+        case MULTIPOSCTRL:
+            if(If_used(motorId) && get_MotorCtrlMode(motorId) == Multi_POS_Mode)
                 write_MotorTarget(motorId, num);
             break;
         case CURCTRL:

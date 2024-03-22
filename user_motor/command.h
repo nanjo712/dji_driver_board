@@ -53,9 +53,11 @@ typedef enum
     MOTOROFF,
     VELCFG,
     POSCFG,
+    MULTIPOSCFG,
     CURCFG,
     VELCTRL,
     POSCTRL,
+    MULTIPOSCTRL,
     CURCTRL
 } CANOPTION;
 
