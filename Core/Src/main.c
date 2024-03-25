@@ -76,6 +76,7 @@ void MX_FREERTOS_Init(void);
 int time_1ms_cnt = 0;
 int BOARDID = 0;
 int N = 0;
+struct BoardState boardState;
 /* USER CODE END 0 */
 
 /**

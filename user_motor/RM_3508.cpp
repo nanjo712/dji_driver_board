@@ -17,7 +17,7 @@ void Motor_RM_3508::Init(int num)
 
 void Motor_RM_3508::Ctrl_Reset() {
     MotorPID.Vel_PID = (PID_s){VEL_KP_3508,VEL_KI_3508,VEL_KD_3508,2,2000,CURRENT_MAX_3508,0,0,0,0,0};
-    MotorPID.Pos_PID = (PID_s){POS_KP_3508,POS_KI_3508,POS_KD_3508,0.001,10,30,0,0,0,0,0};
+    MotorPID.Pos_PID = (PID_s){POS_KP_3508,POS_KI_3508,POS_KD_3508,0.001,10,MotorPID.Pos_PID.ctrl_max,0,0,0,0,0};
     MotorPID.Cur_PID = (PID_s){CUR_KP_3508,CUR_KI_3508,CUR_KD_3508,1,0,CURRENT_MAX_3508,0,0,0,0,0};
     MotorState = MotorState_Def{0,0,0,0,0};
     Final_OutPut = 0;

@@ -297,13 +297,12 @@ static void Command_Motor_PrintInfoS(OSLIB_UART_Handle_t *uartHandle,int argc, c
         return;
     }
     PrintfMotorsInfo();
-    uprintf("%BoardID: %d\r\n",BOARDID);
 }
 
 static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *argv[])
 {
 //    OSLIB_UART_Printf(&huart3, "%s\r\n %d\n %d\n %d\n",argv[0],atoi(argv[1]), atoi(argv[2]),atoi(argv[3]));
-    if (argc < 4)
+    if (argc < 4 || argc > 5)
     {
         uprintf("Param num is error: setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
         motorType: 1 is 3508,2 is 2006,3 is 6020 \r\n");
@@ -318,16 +317,31 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
         return;
     }
     int motor = atoi(argv[2]);
-    if (motor < 1 || motor > 3)
+    if (motor <= 0 || motor >= NONE)
     {
         uprintf("illegal motorType [%d]\r\n", motor);
         return;
     }
     int mode = atoi(argv[3]);
-    if (mode < 1 || mode > 5)
+    if (mode <= 0 || mode >= N_Mode)
     {
         uprintf("illegal controlMode [%d]\r\n", mode);
         return;
+    }
+    if(mode == POS_Mode || mode == Multi_POS_Mode)
+    {
+        if(argc == 5)
+        {
+            int Vel = atoi(argv[4]);
+            if(Vel <= 0 || Vel > 300)
+            {
+                uprintf("illegal maxPosVel [%d]\r\n", Vel);
+                return;
+            }
+            else{
+                write_MotorMaxPosVel(num - 1,Vel);
+            }
+        }
     }
     write_MotorType(num - 1,motor);
     write_MotorCtrlMode(num - 1 , mode);

@@ -2,6 +2,7 @@
 #include "../motor_cxx/motor_class.h"
 #include "motorflash.h"
 #include "user_motor.h"
+#include "config.h"
 
 void Motor_Init( int num, MotorType_Def Type){
     if(num < 0 || num > 3)
@@ -40,6 +41,11 @@ void PrintfMotorsInfo(){
     {
         uprintf("motorCtrlMode[%d] = %d\r\n", i, P_Motor[i]->Get_CtrlMode());
     }
+    for (int i = 0; i < 4; i++)
+    {
+        uprintf("motorPosMaxVel[%d] = %d\r\n", i, P_Motor[i]->Get_MotorMaxPosVel());
+    }
+    uprintf("BoardId = %d\r\n",BOARDID);
 }
 
 MotorType_Def get_MotorType(int num){
@@ -52,6 +58,10 @@ MotorCtrlMode_Def get_MotorCtrlMode(int num){
 
 float get_MotorState(int num){
     return P_Motor[num]->Get_State();
+}
+
+int get_MaxPosVel(int num){
+    return P_Motor[num]->Get_MotorMaxPosVel();
 }
 
 uint8_t If_used(int num){

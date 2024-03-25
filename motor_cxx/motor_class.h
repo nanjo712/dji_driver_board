@@ -44,6 +44,7 @@ public:
     virtual void Motor_SetTarget(float target);
     CanId Get_CanId();
     void Write_MaxPosVel(int num, int vel);
+    int Get_MotorMaxPosVel();
 protected:
     MotorType_Def MotorType;
     MotorPID_Def MotorPID;

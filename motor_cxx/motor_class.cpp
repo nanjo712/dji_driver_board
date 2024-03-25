@@ -111,3 +111,7 @@ void Motor::Write_CtrlMode(MotorCtrlMode_Def CtrlMode){
 void Motor::Write_MaxPosVel(int num, int vel) {
     MotorPID.Pos_PID.ctrl_max = vel;
 }
+
+int Motor::Get_MotorMaxPosVel(){
+    return MotorPID.Pos_PID.ctrl_max;
+}

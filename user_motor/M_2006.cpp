@@ -25,7 +25,7 @@ void Motor_M_2006::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
 
 void Motor_M_2006::Ctrl_Reset() {
     MotorPID.Vel_PID = (PID_s){VEL_KP_2006,VEL_KI_2006,VEL_KD_2006,2,2000,CURRENT_MAX_2006,0,0,0,0,0};
-    MotorPID.Pos_PID = (PID_s){POS_KP_2006,POS_KI_2006,POS_KD_2006,0.001,0,30,0,0,0,0,0};
+    MotorPID.Pos_PID = (PID_s){POS_KP_2006,POS_KI_2006,POS_KD_2006,0.001,0,MotorPID.Pos_PID.ctrl_max,0,0,0,0,0};
     MotorPID.Cur_PID = (PID_s){CUR_KP_2006,CUR_KI_2006,CUR_KD_2006,1,0,CURRENT_MAX_2006,0,0,0,0,0};
     MotorState = MotorState_Def{0,0,0,0,0};
     Final_OutPut = 0;

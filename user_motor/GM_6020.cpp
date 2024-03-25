@@ -16,7 +16,7 @@ void Motor_GM_6020::Init(int num)
 void Motor_GM_6020::Ctrl_Reset()
 {
     MotorPID.Vel_PID = (PID_s){VEL_KP_6020,VEL_KI_6020,VEL_KD_6020,1,2000,CURRENT_MAX_6020,0,0,0,0,0};
-    MotorPID.Pos_PID = (PID_s){POS_KP_6020,POS_KI_6020,POS_KD_6020,0.0005,10,30,0,0,0,0,0};
+    MotorPID.Pos_PID = (PID_s){POS_KP_6020,POS_KI_6020,POS_KD_6020,0.0005,10,MotorPID.Pos_PID.ctrl_max,0,0,0,0,0};
     MotorPID.Cur_PID = (PID_s){CUR_KP_6020,CUR_KI_6020,CUR_KD_6020,1,0,CURRENT_MAX_6020,0,0,0,0,0};
     MotorState = MotorState_Def{0,0,0,0,0};
     Final_OutPut = 0;

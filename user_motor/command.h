@@ -15,7 +15,7 @@ typedef enum
     RM_3508 = 1,
     M_2006,
     GM_6020,
-    NONE = 255
+    NONE
 } MotorType_Def;
 
 typedef enum
@@ -24,7 +24,7 @@ typedef enum
     POS_Mode,
     Multi_POS_Mode,
     CUR_Mode,
-    N_Mode = 255
+    N_Mode
 } MotorCtrlMode_Def;
 
 typedef struct CanId{
@@ -68,6 +68,7 @@ void PrintfMotorsInfo();
 MotorType_Def get_MotorType(int num);//返回电机类型
 MotorCtrlMode_Def get_MotorCtrlMode(int num);//返回控制模式
 float get_MotorState(int num);
+int get_MaxPosVel(int num);
 
 void write_MotorType(int num, MotorType_Def Type);//改写电机类型
 void write_MotorCtrlMode(int num, MotorCtrlMode_Def CtrlMode);//改写控制模式
