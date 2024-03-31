@@ -48,5 +48,7 @@ void shine_Normal(){
             HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin,RESET);
         }
     }
+    else
+        HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin,SET);
     shine_counter++;
 }
