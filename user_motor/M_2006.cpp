@@ -12,6 +12,8 @@ void Motor_M_2006::Init(int num)
     MotorType = M_2006;
     On = false;
     Ctrl_Reset();
+    can_ID.get_ide = CAN_ID_STD;
+    can_ID.get_ide =CAN_ID_STD;
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
 }
@@ -39,6 +41,7 @@ void Motor_M_2006::Motor_MessageCreate(int num) {
         msg_num = add_Id_address(can_ID.send_Id);
     send_Msg[msg_num].msg.ui8[num * 2] = (Final_OutPut >> 8) & 0xff;
     send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut & 0xff;
+    send_Msg[msg_num].ide = can_ID.send_ide;
 }
 
 void Motor_M_2006::Data_Receive(CAN_ConnMessage msg) {

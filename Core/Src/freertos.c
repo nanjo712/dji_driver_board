@@ -55,28 +55,28 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal7,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for can1SendTask */
 osThreadId_t can1SendTaskHandle;
 const osThreadAttr_t can1SendTask_attributes = {
   .name = "can1SendTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal3,
+  .priority = (osPriority_t) osPriorityAboveNormal2,
 };
 /* Definitions for can1ReceiveTask */
 osThreadId_t can1ReceiveTaskHandle;
 const osThreadAttr_t can1ReceiveTask_attributes = {
   .name = "can1ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal2,
+  .priority = (osPriority_t) osPriorityAboveNormal1,
 };
 /* Definitions for can2ReceiveTask */
 osThreadId_t can2ReceiveTaskHandle;
 const osThreadAttr_t can2ReceiveTask_attributes = {
   .name = "can2ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal5,
+  .priority = (osPriority_t) osPriorityAboveNormal7,
 };
 /* Definitions for can1ReceiveQueue */
 osMessageQueueId_t can1ReceiveQueueHandle;
@@ -105,6 +105,8 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+extern void can1ReceiveFunc(void *argument);
+extern void can2ReceiveFunc(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -127,7 +129,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the semaphores(s) */
   /* creation of can1sendSema */
-  can1sendSemaHandle = osSemaphoreNew(1, 1, &can1sendSema_attributes);
+  can1sendSemaHandle = osSemaphoreNew(1, 0, &can1sendSema_attributes);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */

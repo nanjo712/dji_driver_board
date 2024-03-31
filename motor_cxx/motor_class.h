@@ -23,8 +23,8 @@ public:
 
     virtual void Init(int num) = 0;
     virtual void Ctrl_Reset() = 0;
-    void Turn_On();
-    void Turn_Off();
+    virtual void Turn_On();
+    virtual void Turn_Off();
     uint8_t If_On();
 
     Motor();

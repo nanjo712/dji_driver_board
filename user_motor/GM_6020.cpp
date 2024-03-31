@@ -1,6 +1,8 @@
 #include "GM_6020.h"
 #include "../motor_cxx/motor_math.h"
 
+#define re_ratio Reduction_Ratio_6020
+
 const int RM_RECV_BASE = 0x205; //收报基准ID
 const int RM_SEND_BASE = 0x1FF; //发报基准ID
 
@@ -9,6 +11,8 @@ void Motor_GM_6020::Init(int num)
     MotorType = GM_6020;
     On = false;
     Ctrl_Reset();
+    can_ID.get_ide = CAN_ID_STD;
+    can_ID.get_ide =CAN_ID_STD;
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
 }
@@ -30,6 +34,7 @@ void Motor_GM_6020::Motor_MessageCreate(int num) {
         msg_num = add_Id_address(can_ID.send_Id);
     send_Msg[msg_num].msg.ui8[num * 2] = (Final_OutPut >> 8) & 0xff;
     send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut & 0xff;
+    send_Msg[msg_num].ide = can_ID.send_ide;
 }
 
 void Motor_GM_6020::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
@@ -65,5 +70,5 @@ void Motor_GM_6020::Data_Receive(CAN_ConnMessage msg) {
 
     del_pos = temp_pos - MotorState.Pos_Last;
     MotorState.Pos_Last = temp_pos;
-    MotorState.Pos_Now += LimitPos_f(del_pos,1);
+    MotorState.Pos_Now += LimitPos_f(del_pos,re_ratio);
 }

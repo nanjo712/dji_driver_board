@@ -13,6 +13,7 @@ const float POS_KD_6020 = 0.00f;
 const float CUR_KP_6020 = 500.0f;
 const float CUR_KI_6020 = 0.0f;
 const float CUR_KD_6020 = 0.0f;
+const float Reduction_Ratio_6020 = 1.0f;
 
 class Motor_GM_6020 : public Motor {
 public:

@@ -12,6 +12,7 @@ struct Can_Message_Def{
     int can_Id;
     can_msg msg;
     int used;
+    uint8_t ide;
 };
 
 extern osMessageQueueId_t can1ReceiveQueueHandle;

@@ -34,6 +34,7 @@ extern "C"
 /* USER CODE BEGIN Includes */
 #include "oslib.h"
 #include "config.h"
+#include "heart.h"
 #ifdef __cplusplus
 };
 #endif
@@ -117,11 +118,14 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
 
   /* Start scheduler */
   osKernelStart();
+
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -199,9 +203,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
     // osSemaphoreRelease(can1sendSemaHandle);
     time_1ms_cnt++;
-    if (time_1ms_cnt % 500 == 0)
+    if (time_1ms_cnt % 200 == 0)
     {
-      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+      Heart_Shine();
     }
   }
 

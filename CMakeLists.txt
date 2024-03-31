@@ -84,6 +84,7 @@ set(
         Core/Inc/toolBoxScope.h
         Core/Inc/motorflash.h
         Core/Inc/flashwear.h
+        Core/Inc/heart.h
         BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.h
 )
 set(
@@ -104,6 +105,7 @@ set(
         Core/Src/usart.c
         Core/Src/motorflash.c
         Core/Src/flashwear.c
+        Core/Src/heart.c
         BUPT_RobotTeam_Libraries/SimpleLib/utils/utils.c
         Core/Startup/startup_stm32f405rgtx.s
 )

@@ -62,7 +62,7 @@ void delete_Id_address(int Id){
 void Send_Message(){
     for(int i=0 ;i<5;i++) {
         if(send_Msg[i].used > 0)
-            OSLIB_CAN_SendMessage(&hcan1, CAN_ID_STD, send_Msg[i].can_Id, &send_Msg[i].msg);
+            OSLIB_CAN_SendMessage(&hcan1, send_Msg[i].ide, send_Msg[i].can_Id, &send_Msg[i].msg);
     }
 }
 
@@ -104,9 +104,9 @@ void can2ReceiveFunc(void *argument)
         /* user functional code start */
         if(msg.id == 0x200 + BOARDID)
             can2Handle(&(msg.payload));
-        if(msg.id == 0x204 + BOARDID) // 控制四个电机速度环
+        else if(msg.id == 0x204 + BOARDID) // 控制四个电机速度环
             VelCtrlAll(&(msg.payload));
-        if(msg.id == 0x208 + BOARDID) // 控制四个电机位置环
+        else if(msg.id == 0x208 + BOARDID) // 控制四个电机位置环
             PosCtrlAll(&(msg.payload));
         /* user functional code end */
     }

@@ -15,6 +15,7 @@ typedef enum
     RM_3508 = 1,
     M_2006,
     GM_6020,
+    CyberGear,
     NONE
 } MotorType_Def;
 
@@ -30,6 +31,8 @@ typedef enum
 typedef struct CanId{
     int send_Id;
     int get_Id;
+    uint8_t get_ide;
+    uint8_t send_ide;
 };
 
 typedef struct MotorState_Def{
