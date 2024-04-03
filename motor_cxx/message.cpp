@@ -97,6 +97,7 @@ void can1ReceiveFunc(void *argument)
  */
 void can2ReceiveFunc(void *argument)
 {
+    osDelay(2);
     for (;;)
     {
         static CAN_ConnMessage msg;

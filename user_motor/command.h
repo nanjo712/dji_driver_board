@@ -16,6 +16,7 @@ typedef enum
     M_2006,
     GM_6020,
     CyberGear,
+    VESC,
     NONE
 } MotorType_Def;
 
@@ -25,6 +26,7 @@ typedef enum
     POS_Mode,
     Multi_POS_Mode,
     CUR_Mode,
+    BRAKE_Mode,
     N_Mode
 } MotorCtrlMode_Def;
 

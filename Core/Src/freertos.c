@@ -55,7 +55,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityAboveNormal1,
 };
 /* Definitions for can1SendTask */
 osThreadId_t can1SendTaskHandle;
@@ -69,7 +69,7 @@ osThreadId_t can1ReceiveTaskHandle;
 const osThreadAttr_t can1ReceiveTask_attributes = {
   .name = "can1ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .priority = (osPriority_t) osPriorityAboveNormal2,
 };
 /* Definitions for can2ReceiveTask */
 osThreadId_t can2ReceiveTaskHandle;
@@ -101,7 +101,9 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+void DELAY_Queue_Init(){
+    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
+}
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -144,7 +146,7 @@ void MX_FREERTOS_Init(void) {
   can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
 
   /* creation of can2ReceiveQueue */
-  can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
+//    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -183,6 +185,7 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+    DELAY_Queue_Init();//为了避免can2的队列在初始化后被莫名其妙的指针修改，所以独立出来延迟初始化
     DriverInit();
     while(1)
     {
