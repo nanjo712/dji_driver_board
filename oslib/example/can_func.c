@@ -28,7 +28,7 @@ extern osMessageQueueId_t ExampleCanTaskQueue;
 
 extern osMessageQueueId_t can1ReceiveQueueHandle;
 extern osMessageQueueId_t can2ReceiveQueueHandle;
-
+extern osMessageQueueId_t protectReceiveQueueHandle;
 /*-IDList--------------------------------------------------*/
 
 /* 

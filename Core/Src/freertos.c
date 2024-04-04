@@ -88,6 +88,11 @@ osMessageQueueId_t can2ReceiveQueueHandle;
 const osMessageQueueAttr_t can2ReceiveQueue_attributes = {
   .name = "can2ReceiveQueue"
 };
+/* Definitions for protectReceiveQueue */
+osMessageQueueId_t protectReceiveQueueHandle;
+const osMessageQueueAttr_t protectReceiveQueue_attributes = {
+        .name = "protectReceiveQueue"
+};
 /* Definitions for motorsMutex */
 osMutexId_t motorsMutexHandle;
 const osMutexAttr_t motorsMutex_attributes = {
@@ -148,7 +153,7 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of can2ReceiveQueue */
 //    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
-
+    protectReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &protectReceiveQueue_attributes);
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
