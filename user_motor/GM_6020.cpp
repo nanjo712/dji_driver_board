@@ -11,10 +11,11 @@ void Motor_GM_6020::Init(int num)
     MotorType = GM_6020;
     On = false;
     Ctrl_Reset();
+    can_ID.send_ide= CAN_ID_STD;
     can_ID.get_ide = CAN_ID_STD;
-    can_ID.get_ide =CAN_ID_STD;
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
+    can_ID.length = 8;
 }
 
 void Motor_GM_6020::Ctrl_Reset()
@@ -23,7 +24,7 @@ void Motor_GM_6020::Ctrl_Reset()
     MotorPID.Pos_PID = (PID_s){POS_KP_6020,POS_KI_6020,POS_KD_6020,0.0005,10,MotorPID.Pos_PID.ctrl_max,0,0,0,0,0};
     MotorPID.Cur_PID = (PID_s){CUR_KP_6020,CUR_KI_6020,CUR_KD_6020,1,0,CURRENT_MAX_6020,0,0,0,0,0};
     MotorState = MotorState_Def{0,0,0,0,0};
-    Final_OutPut = 0;
+    Final_OutPut.i16[0] = 0;
     PosUsed_Flag = 0;
 }
 
@@ -32,8 +33,9 @@ void Motor_GM_6020::Motor_MessageCreate(int num) {
     msg_num = get_Id_address(can_ID.send_Id);
     if(msg_num== 9)
         msg_num = add_Id_address(can_ID.send_Id);
-    send_Msg[msg_num].msg.ui8[num * 2] = (Final_OutPut >> 8) & 0xff;
-    send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut & 0xff;
+    send_Msg[msg_num].msg.ui8[num * 2] = Final_OutPut.ui8[1] & 0xff;
+    send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut.ui8[0] & 0xff;
+    send_Msg[msg_num].length = can_ID.length;
     send_Msg[msg_num].ide = can_ID.send_ide;
 }
 

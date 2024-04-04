@@ -35,6 +35,7 @@ typedef struct CanId{
     int get_Id;
     uint8_t get_ide;
     uint8_t send_ide;
+    uint32_t length;
 };
 
 typedef struct MotorState_Def{

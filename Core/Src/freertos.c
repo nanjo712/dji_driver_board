@@ -103,12 +103,14 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 /* USER CODE BEGIN FunctionPrototypes */
 void DELAY_Queue_Init(){
     can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
+    can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
 }
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
 extern void can1ReceiveFunc(void *argument);
 extern void can2ReceiveFunc(void *argument);
+extern void can1SendFunc(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -143,7 +145,6 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* creation of can1ReceiveQueue */
-  can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
 
   /* creation of can2ReceiveQueue */
 //    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
@@ -157,7 +158,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of can1SendTask */
-
+  can1SendTaskHandle = osThreadNew(can1SendFunc, NULL, &can1SendTask_attributes);
   /* creation of can1ReceiveTask */
   can1ReceiveTaskHandle = osThreadNew(can1ReceiveFunc, NULL, &can1ReceiveTask_attributes);
 

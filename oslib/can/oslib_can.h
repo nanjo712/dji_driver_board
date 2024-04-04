@@ -67,6 +67,7 @@ typedef struct _OSLIB_CAN_Handle_t
 
 extern void OSLIB_CAN_Handle_Init(OSLIB_CAN_Handle_t *can_handle, CAN_HandleTypeDef *hcan, const char *name, size_t rx_queue_size);
 extern void OSLIB_CAN_SendMessage(CAN_HandleTypeDef *hcan, uint32_t idtype, uint32_t id, CAN_Message *msg);
+extern void OSLIB_CAN_SendMessage_Length(CAN_HandleTypeDef *hcan, uint32_t idtype, uint32_t id, CAN_Message *msg, uint32_t num);
 extern void OSLIB_CAN_Init(void);
 
 /*-兼容定义-----------------------------------*/

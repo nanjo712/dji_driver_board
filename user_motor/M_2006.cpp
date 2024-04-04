@@ -12,10 +12,11 @@ void Motor_M_2006::Init(int num)
     MotorType = M_2006;
     On = false;
     Ctrl_Reset();
+    can_ID.send_ide = CAN_ID_STD;
     can_ID.get_ide = CAN_ID_STD;
-    can_ID.get_ide =CAN_ID_STD;
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
+    can_ID.length = 8;
 }
 
 void Motor_M_2006::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
@@ -30,7 +31,7 @@ void Motor_M_2006::Ctrl_Reset() {
     MotorPID.Pos_PID = (PID_s){POS_KP_2006,POS_KI_2006,POS_KD_2006,0.001,0,MotorPID.Pos_PID.ctrl_max,0,0,0,0,0};
     MotorPID.Cur_PID = (PID_s){CUR_KP_2006,CUR_KI_2006,CUR_KD_2006,1,0,CURRENT_MAX_2006,0,0,0,0,0};
     MotorState = MotorState_Def{0,0,0,0,0};
-    Final_OutPut = 0;
+    Final_OutPut.ui16[0] = 0;
     PosUsed_Flag = 0;
 }
 
@@ -39,8 +40,9 @@ void Motor_M_2006::Motor_MessageCreate(int num) {
     msg_num=get_Id_address(can_ID.send_Id);
     if(msg_num== 9)
         msg_num = add_Id_address(can_ID.send_Id);
-    send_Msg[msg_num].msg.ui8[num * 2] = (Final_OutPut >> 8) & 0xff;
-    send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut & 0xff;
+    send_Msg[msg_num].msg.ui8[num * 2] = Final_OutPut.ui8[1] & 0xff;
+    send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut.ui8[0] & 0xff;
+    send_Msg[msg_num].length = can_ID.length;
     send_Msg[msg_num].ide = can_ID.send_ide;
 }
 

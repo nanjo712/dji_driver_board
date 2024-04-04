@@ -251,4 +251,26 @@ void OSLIB_CAN_SendMessage(CAN_HandleTypeDef *hcan, uint32_t idtype, uint32_t id
     HAL_CAN_AddTxMessage(hcan, &header, msg->ui8, &mailbox);
 }
 
+void OSLIB_CAN_SendMessage_Length(CAN_HandleTypeDef *hcan, uint32_t idtype, uint32_t id, CAN_Message *msg, uint32_t length)
+{
+    OSLIB_CAN_Handle_t *can_handle = OSLIB_CAN_Handle_Get(hcan);
+
+    if (can_handle == NULL)
+        return;
+
+    assert_param(IS_CAN_IDTYPE(idtype));
+    if (!IS_CAN_STDID(id))
+        idtype = CAN_ID_EXT;
+
+    CAN_TxHeaderTypeDef header = {id, id, idtype, CAN_RTR_DATA,length, DISABLE};
+    uint32_t mailbox;
+
+    while (osSemaphoreAcquire(can_handle->tx_sema, osWaitForever) != osOK)
+        ;
+    while (HAL_CAN_GetTxMailboxesFreeLevel(hcan) == 0)
+        osDelay(1);
+
+    HAL_CAN_AddTxMessage(hcan, &header, msg->ui8, &mailbox);
+}
+
 #endif // OSLIB_CAN_MODULE_ENABLED

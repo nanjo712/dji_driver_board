@@ -50,7 +50,7 @@ protected:
     MotorPID_Def MotorPID;
     MotorState_Def MotorState;
     MotorCtrlMode_Def MotorCtrlMode;
-    int16_t Final_OutPut;
+    CAN_Message Final_OutPut;
     uint8_t On;
     uint8_t PosUsed_Flag;
     CanId can_ID;

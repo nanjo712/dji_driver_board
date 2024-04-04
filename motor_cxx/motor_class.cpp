@@ -90,6 +90,7 @@ MotorCtrlMode_Def Motor::Get_CtrlMode(){
 
 void Motor::Turn_On() {
     On = 1;
+    Ctrl_Reset();
 }
 
 void Motor::Turn_Off() {

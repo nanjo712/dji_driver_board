@@ -87,7 +87,6 @@ void motor_On(int num){
 
 void motor_Off(int num){
     if(If_used(num)) {
-        delete_Id_address(P_Motor[num]->Get_CanId().send_Id);
         P_Motor[num]->Turn_Off();
     }
 }

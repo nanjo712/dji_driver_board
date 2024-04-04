@@ -40,7 +40,7 @@ float Motor::PID_GetOutPut(PID_s *PID, float err){
 void Motor::Vel_Ctrl()
 {
     float temp_err = MotorPID.Vel_PID.target - Get_State();
-    Final_OutPut = PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
+    Final_OutPut.i16[0] = PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor::Pos_Ctrl()
@@ -53,13 +53,13 @@ void Motor::Pos_Ctrl()
 
     MotorPID.Vel_PID.target = Temp_OutPut;
     temp_err = MotorPID.Vel_PID.target - MotorState.Vel_Now;
-    Final_OutPut =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
+    Final_OutPut.i16[0] =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor::Cur_Ctrl()
 {
     float temp_err = MotorPID.Cur_PID.target - Get_State();
-    Final_OutPut =  PID_GetOutPut(&MotorPID.Cur_PID,temp_err);
+    Final_OutPut.i16[0] =  PID_GetOutPut(&MotorPID.Cur_PID,temp_err);
 }
 
 void Motor::Multi_Pos_Ctrl() {
@@ -71,7 +71,7 @@ void Motor::Multi_Pos_Ctrl() {
 
     MotorPID.Vel_PID.target = Temp_OutPut;
     temp_err = MotorPID.Vel_PID.target - MotorState.Vel_Now;
-    Final_OutPut =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
+    Final_OutPut.i16[0] =  PID_GetOutPut(&MotorPID.Vel_PID,temp_err);
 }
 
 void Motor:: Motor_CtrlMode_Choose(){

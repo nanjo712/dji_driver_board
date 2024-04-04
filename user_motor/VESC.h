@@ -22,6 +22,7 @@ public:
     void Data_Receive(CAN_ConnMessage msg);
     void Write_CtrlMode(MotorCtrlMode_Def CtrlMode);
     void Motor_MessageCreate(int num);
+    void Motor_CtrlMode_Choose();
 };
 
 

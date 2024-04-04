@@ -29,7 +29,7 @@ int get_Id_address(int Id)
 {
     for(int i=0;i<5;i++)
     {
-        if(send_Msg[i].can_Id == Id)
+        if(send_Msg[i].can_Id == Id && send_Msg[i].used == 0)
             return i;
     }
     return 9;
@@ -41,29 +41,38 @@ int add_Id_address(int Id)
     for(int i=0;i<5;i++)
     {
         if(send_Msg[i].used == 0)
+        {
             send_Msg[i].used++;
-        send_Msg[i].can_Id = Id;
-        break;
+            send_Msg[i].can_Id = Id;
+            return i;
+        }
     }
-    send_Msg[F_num].msg.in[0] = 0;
-    send_Msg[F_num].msg.in[1] = 0;
     return F_num;
 }
 
-void delete_Id_address(int Id){
+void delete_Id_address(){
     for(int i=0;i<5;i++)
     {
-        if(send_Msg[i].can_Id == Id)
-            send_Msg[i].used--;
-        break;
+        send_Msg[i].used = 0;
+        send_Msg[i].can_Id = 0;
+        send_Msg[i].length = 0;
+        send_Msg[i].ide = 0;
+        send_Msg[i].msg.in[0] = 0;
+        send_Msg[i].msg.in[1] = 0;
     }
 }
 
 void Send_Message(){
     for(int i=0 ;i<5;i++) {
         if(send_Msg[i].used > 0)
-            OSLIB_CAN_SendMessage(&hcan1, send_Msg[i].ide, send_Msg[i].can_Id, &send_Msg[i].msg);
+            OSLIB_CAN_SendMessage_Length(&hcan1, send_Msg[i].ide, send_Msg[i].can_Id, &send_Msg[i].msg,send_Msg[i].length);
     }
+    delete_Id_address();
+}
+
+void can1SendFunc(void *argument)
+{
+    osThreadExit();
 }
 
 /**
@@ -78,6 +87,7 @@ int firstFlag[4];
 
 void can1ReceiveFunc(void *argument)
 {
+    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;
@@ -97,7 +107,7 @@ void can1ReceiveFunc(void *argument)
  */
 void can2ReceiveFunc(void *argument)
 {
-    osDelay(2);
+    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;
