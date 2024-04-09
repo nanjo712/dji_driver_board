@@ -54,6 +54,7 @@ void motor_Reset(void){
     {
         write_MotorMaxPosVel(i,30);
     }
+
     BOARDID = 1;
 }
 

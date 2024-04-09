@@ -17,8 +17,10 @@ uint8_t receive_mark;
 void  Receive_Choose(CAN_ConnMessage msg){
     for(int i=0;i<4;i++)
     {
-        if(msg.id == P_Motor[i]->Get_CanId().get_Id && If_used(i))
+        if(msg.id == P_Motor[i]->Get_CanId().get_Id)
         {
+            if(!P_Motor[i]->If_On())
+                P_Motor[i]->Turn_On();
             P_Motor[i]->Data_Receive(msg);
         }
     }
@@ -87,7 +89,6 @@ int firstFlag[4];
 
 void can1ReceiveFunc(void *argument)
 {
-    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;
@@ -107,7 +108,6 @@ void can1ReceiveFunc(void *argument)
  */
 void can2ReceiveFunc(void *argument)
 {
-    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;
