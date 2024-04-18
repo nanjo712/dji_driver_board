@@ -58,13 +58,6 @@ const osThreadAttr_t defaultTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for IwdgFeedDogTask */
-osThreadId_t IwdgFeedDogTaskHandle;
-const osThreadAttr_t IwdgFeedDogTask_attributes = {
-        .name = "IwdgFeedDogTask",
-        .stack_size = 128 * 4,
-        .priority = (osPriority_t) osPriorityAboveNormal7,
-};
 /* Definitions for can1SendTask */
 osThreadId_t can1SendTaskHandle;
 const osThreadAttr_t can1SendTask_attributes = {
@@ -86,6 +79,13 @@ const osThreadAttr_t can2ReceiveTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal7,
 };
+/* Definitions for IwdgFeedDogTask */
+osThreadId_t IwdgFeedDogTaskHandle;
+const osThreadAttr_t IwdgFeedDogTask_attributes = {
+  .name = "IwdgFeedDogTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal3,
+};
 /* Definitions for can1ReceiveQueue */
 osMessageQueueId_t can1ReceiveQueueHandle;
 const osMessageQueueAttr_t can1ReceiveQueue_attributes = {
@@ -95,6 +95,11 @@ const osMessageQueueAttr_t can1ReceiveQueue_attributes = {
 osMessageQueueId_t can2ReceiveQueueHandle;
 const osMessageQueueAttr_t can2ReceiveQueue_attributes = {
   .name = "can2ReceiveQueue"
+};
+/* Definitions for ProtectReceiveQueue */
+osMessageQueueId_t ProtectReceiveQueueHandle;
+const osMessageQueueAttr_t ProtectReceiveQueue_attributes = {
+  .name = "ProtectReceiveQueue"
 };
 /* Definitions for motorsMutex */
 osMutexId_t motorsMutexHandle;
@@ -118,7 +123,6 @@ extern void can1SendFunc(void *argument);
 extern void can1ReceiveFunc(void *argument);
 extern void can2ReceiveFunc(void *argument);
 void IwdgFeedDogFunc(void *argument);
-
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -158,6 +162,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of can2ReceiveQueue */
   can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
 
+  /* creation of ProtectReceiveQueue */
+  ProtectReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &ProtectReceiveQueue_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -165,8 +172,7 @@ void MX_FREERTOS_Init(void) {
   /* Create the thread(s) */
   /* creation of defaultTask */
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-  /* creation of Task */
-  IwdgFeedDogTaskHandle = osThreadNew(IwdgFeedDogFunc, NULL, &IwdgFeedDogTask_attributes);
+
   /* creation of can1SendTask */
   can1SendTaskHandle = osThreadNew(can1SendFunc, NULL, &can1SendTask_attributes);
 
@@ -175,6 +181,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of can2ReceiveTask */
   can2ReceiveTaskHandle = osThreadNew(can2ReceiveFunc, NULL, &can2ReceiveTask_attributes);
+
+  /* creation of IwdgFeedDogTask */
+  IwdgFeedDogTaskHandle = osThreadNew(IwdgFeedDogFunc, NULL, &IwdgFeedDogTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -197,8 +206,8 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-    DELAY_Queue_Init();//为了避免can2的队列在初始化后被莫名其妙的指针修改，所以独立出来延迟初始化
     DriverInit();
+
     while(1)
     {
         MotorCtrl();
@@ -208,13 +217,28 @@ void StartDefaultTask(void *argument)
   /* USER CODE END StartDefaultTask */
 }
 
+/* USER CODE BEGIN Header_IwdgFeedDogFunc */
+/**
+* @brief Function implementing the IwdgFeedDogTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_IwdgFeedDogFunc */
+void IwdgFeedDogFunc(void *argument)
+{
+  /* USER CODE BEGIN IwdgFeedDogFunc */
+  /* Infinite loop */
+  for(;;)
+  {
+      while(1){
+          IWDG_ReloadCounter();
+          osDelay(100);
+      }
+  }
+  /* USER CODE END IwdgFeedDogFunc */
+}
+
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-void IwdgFeedDogFunc(void *argument){
-    while(1){
-        IWDG_ReloadCounter();
-        osDelay(100);
-    }
-}
 /* USER CODE END Application */
 

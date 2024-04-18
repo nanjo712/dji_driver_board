@@ -18,7 +18,7 @@ struct Can_Message_Def{
 
 extern osMessageQueueId_t can1ReceiveQueueHandle;
 extern osMessageQueueId_t can2ReceiveQueueHandle;
-extern osMessageQueueId_t protectReceiveQueueHandle;
+extern osMessageQueueId_t ProtectReceiveQueueHandle;
 extern osSemaphoreId_t can1sendSemaHandle;
 void Receive_Choose(CAN_ConnMessage msg);
 void can2ReceiveFunc(void *argument);
