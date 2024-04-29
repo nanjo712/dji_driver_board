@@ -13,12 +13,22 @@ extern "C"
 #include <string.h>
 Can_Message_Def send_Msg[5];
 uint8_t receive_mark;
+int32_t re_num[4];
+
+uint8_t If_Right(CAN_ConnMessage msg, CanId get){
+    if(msg.ide != get.get_ide)
+        return 0;
+    return ((get.mask & msg.id) == (get.get_Id & get.mask)) ? 1:0;
+}
+
 
 void  Receive_Choose(CAN_ConnMessage msg){
     for(int i=0;i<4;i++)
     {
-        if(msg.id == P_Motor[i]->Get_CanId().get_Id && If_used(i))
+        if(If_Right(msg, P_Motor[i]->Get_CanId()) == 1)
         {
+            if(!P_Motor[i]->If_On())
+                P_Motor[i]->Turn_On();
             P_Motor[i]->Data_Receive(msg);
         }
     }
@@ -29,7 +39,7 @@ int get_Id_address(int Id)
 {
     for(int i=0;i<5;i++)
     {
-        if(send_Msg[i].can_Id == Id && send_Msg[i].used == 0)
+        if(send_Msg[i].can_Id == Id)
             return i;
     }
     return 9;
@@ -53,12 +63,14 @@ int add_Id_address(int Id)
 void delete_Id_address(){
     for(int i=0;i<5;i++)
     {
-        send_Msg[i].used = 0;
-        send_Msg[i].can_Id = 0;
-        send_Msg[i].length = 0;
-        send_Msg[i].ide = 0;
-        send_Msg[i].msg.in[0] = 0;
-        send_Msg[i].msg.in[1] = 0;
+        if(send_Msg[i].used == 0) {
+            send_Msg[i].used = 0;
+            send_Msg[i].can_Id = 0;
+            send_Msg[i].length = 0;
+            send_Msg[i].ide = 0;
+            send_Msg[i].msg.in[0] = 0;
+            send_Msg[i].msg.in[1] = 0;
+        }
     }
 }
 
@@ -87,7 +99,6 @@ int firstFlag[4];
 
 void can1ReceiveFunc(void *argument)
 {
-    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;
@@ -107,7 +118,6 @@ void can1ReceiveFunc(void *argument)
  */
 void can2ReceiveFunc(void *argument)
 {
-    osDelay(10);
     for (;;)
     {
         static CAN_ConnMessage msg;

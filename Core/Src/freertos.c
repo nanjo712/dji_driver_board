@@ -29,6 +29,7 @@
 #include "oslib.h"
 #include "../user_motor/command.h"
 #include "../motor_cxx/message.h"
+#include "iwdg.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +56,7 @@ osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal1,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for can1SendTask */
 osThreadId_t can1SendTaskHandle;
@@ -69,7 +70,7 @@ osThreadId_t can1ReceiveTaskHandle;
 const osThreadAttr_t can1ReceiveTask_attributes = {
   .name = "can1ReceiveTask",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal2,
+  .priority = (osPriority_t) osPriorityAboveNormal1,
 };
 /* Definitions for can2ReceiveTask */
 osThreadId_t can2ReceiveTaskHandle;
@@ -77,6 +78,13 @@ const osThreadAttr_t can2ReceiveTask_attributes = {
   .name = "can2ReceiveTask",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityAboveNormal7,
+};
+/* Definitions for IwdgFeedDogTask */
+osThreadId_t IwdgFeedDogTaskHandle;
+const osThreadAttr_t IwdgFeedDogTask_attributes = {
+  .name = "IwdgFeedDogTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityAboveNormal3,
 };
 /* Definitions for can1ReceiveQueue */
 osMessageQueueId_t can1ReceiveQueueHandle;
@@ -88,10 +96,10 @@ osMessageQueueId_t can2ReceiveQueueHandle;
 const osMessageQueueAttr_t can2ReceiveQueue_attributes = {
   .name = "can2ReceiveQueue"
 };
-/* Definitions for protectReceiveQueue */
-osMessageQueueId_t protectReceiveQueueHandle;
-const osMessageQueueAttr_t protectReceiveQueue_attributes = {
-        .name = "protectReceiveQueue"
+/* Definitions for ProtectReceiveQueue */
+osMessageQueueId_t ProtectReceiveQueueHandle;
+const osMessageQueueAttr_t ProtectReceiveQueue_attributes = {
+  .name = "ProtectReceiveQueue"
 };
 /* Definitions for motorsMutex */
 osMutexId_t motorsMutexHandle;
@@ -106,16 +114,13 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-void DELAY_Queue_Init(){
-    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
-    can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
-}
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
+extern void can1SendFunc(void *argument);
 extern void can1ReceiveFunc(void *argument);
 extern void can2ReceiveFunc(void *argument);
-extern void can1SendFunc(void *argument);
+void IwdgFeedDogFunc(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -150,10 +155,14 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the queue(s) */
   /* creation of can1ReceiveQueue */
+  can1ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can1ReceiveQueue_attributes);
 
   /* creation of can2ReceiveQueue */
-//    can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
-    protectReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &protectReceiveQueue_attributes);
+  can2ReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &can2ReceiveQueue_attributes);
+
+  /* creation of ProtectReceiveQueue */
+  ProtectReceiveQueueHandle = osMessageQueueNew (8, sizeof(CAN_ConnMessage), &ProtectReceiveQueue_attributes);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -164,11 +173,15 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of can1SendTask */
   can1SendTaskHandle = osThreadNew(can1SendFunc, NULL, &can1SendTask_attributes);
+
   /* creation of can1ReceiveTask */
   can1ReceiveTaskHandle = osThreadNew(can1ReceiveFunc, NULL, &can1ReceiveTask_attributes);
 
   /* creation of can2ReceiveTask */
   can2ReceiveTaskHandle = osThreadNew(can2ReceiveFunc, NULL, &can2ReceiveTask_attributes);
+
+  /* creation of IwdgFeedDogTask */
+  IwdgFeedDogTaskHandle = osThreadNew(IwdgFeedDogFunc, NULL, &IwdgFeedDogTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -191,19 +204,40 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-    DELAY_Queue_Init();//为了避免can2的队列在初始化后被莫名其妙的指针修改，所以独立出来延迟初始化
+    int num = 0;
     DriverInit();
     while(1)
     {
         MotorCtrl();
         osDelay(1);
+        num++;
+//        if(num % 100 == 0)
+//            uprintf("%d %d %d %d\r\n", re_num[0], re_num[1], re_num[2], re_num[3]);
+//        if(num % 100 == 0)
+//            uprintf("%f %f %f %f\r\n", get_MotorState_Choose(0,CUR_Mode), get_MotorState_Choose(1,CUR_Mode), get_MotorState_Choose(2,CUR_Mode), get_MotorState_Choose(3,CUR_Mode));
     }
-//  osThreadExit();
   /* USER CODE END StartDefaultTask */
+}
+
+/* USER CODE BEGIN Header_IwdgFeedDogFunc */
+/**
+* @brief Function implementing the IwdgFeedDogTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_IwdgFeedDogFunc */
+void IwdgFeedDogFunc(void *argument)
+{
+  /* USER CODE BEGIN IwdgFeedDogFunc */
+  /* Infinite loop */
+    while(1){
+        IWDG_ReloadCounter();
+        osDelay(400);
+    }
+  /* USER CODE END IwdgFeedDogFunc */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
-
 /* USER CODE END Application */
 

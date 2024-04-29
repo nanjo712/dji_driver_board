@@ -22,6 +22,10 @@ void Motor_Init( int num, MotorType_Def Type){
             P_Motor[num] = new Motor_GM_6020;
             P_Motor[num]->Init(num);
             break;
+        case VESC:
+            P_Motor[num] = new Motor_VESC;
+            P_Motor[num]->Init(num);
+            break;
         default:
             break;
     }
@@ -59,6 +63,11 @@ MotorCtrlMode_Def get_MotorCtrlMode(int num){
 float get_MotorState(int num){
     return P_Motor[num]->Get_State();
 }
+
+float get_MotorState_Choose(int num, MotorCtrlMode_Def Mode){
+    return P_Motor[num]->Get_State_Choose(Mode);
+}
+
 
 int get_MaxPosVel(int num){
     return P_Motor[num]->Get_MotorMaxPosVel();

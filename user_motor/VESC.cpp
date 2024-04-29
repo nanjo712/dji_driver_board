@@ -3,8 +3,8 @@
 
 #define re_ratio Reduction_Ratio_VESC
 
-const int RM_RECV_BASE = 0x01; //收报基准ID
-const int RM_SEND_BASE = 0x4D; //发报基准ID
+const int RM_RECV_BASE = 0x4E; //收报基准ID
+const int RM_SEND_BASE = 0x4E; //发报基准ID
 
 typedef enum {
     CAN_PACKET_SET_DUTY = 0,
@@ -36,6 +36,10 @@ uint32_t encode_ctrl_mode(MotorCtrlMode_Def CtrlType){
     }
 }
 
+void comm_can_set_pos(float pos, uint8_t* buffer, int32_t* send_index);
+void comm_can_set_current(float current, uint8_t* buffer, int32_t* send_index);
+void comm_can_set_current_brake(float current, uint8_t* buffer, int32_t* send_index);
+void comm_can_set_rpm(float rpm, uint8_t* buffer, int32_t* send_index);
 //VESC的函数
 void Motor_VESC::Init(int num)
 {
@@ -44,7 +48,8 @@ void Motor_VESC::Init(int num)
     Ctrl_Reset();
     can_ID.send_Id = CAN_ID_EXT;
     can_ID.get_ide = CAN_ID_EXT;
-    can_ID.send_Id = RM_SEND_BASE;
+    can_ID.send_Id = RM_SEND_BASE + num;
+    can_ID.mask = 0xFF;
     can_ID.get_Id = RM_RECV_BASE + num;
     can_ID.length = 0;
 }
@@ -56,6 +61,56 @@ void Motor_VESC::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
         PosUsed_Flag = 1;
     if(CtrlMode == POS_Mode)
         MotorState.Pos_Begin = 0;
+}
+
+void Motor_VESC:: Motor_CtrlMode_Choose(){
+    switch (MotorCtrlMode) {
+        case VEL_Mode:
+            if(MotorPID.Vel_PID.target <= 1)
+                comm_can_set_current_brake(1,Final_OutPut.ui8,&can_ID.length);
+            else
+                comm_can_set_rpm(MotorPID.Vel_PID.target,Final_OutPut.ui8, &can_ID.length);
+            break;
+        case POS_Mode:
+            comm_can_set_pos(MotorPID.Pos_PID.target,Final_OutPut.ui8, &can_ID.length);
+            break;
+        case Multi_POS_Mode:
+            Multi_Pos_Ctrl();
+            break;
+        case CUR_Mode:
+            comm_can_set_current(MotorPID.Cur_PID.target,Final_OutPut.ui8, &can_ID.length);
+            break;
+        default:
+            break;
+    }
+}
+
+void Motor_VESC::Pos_Ctrl(){
+    float Temp_OutPut;
+    float temp_err;
+
+    temp_err = MotorPID.Pos_PID.target - Get_State();
+    Temp_OutPut = PID_GetOutPut(&MotorPID.Pos_PID, LimitPos_f(temp_err,1));
+
+    MotorPID.Vel_PID.target = Temp_OutPut;
+    if(MotorPID.Vel_PID.target <= 1)
+        comm_can_set_current_brake(1,Final_OutPut.ui8,&can_ID.length);
+    else
+        comm_can_set_rpm(MotorPID.Vel_PID.target,Final_OutPut.ui8, &can_ID.length);
+}
+
+void Motor_VESC::Multi_Pos_Ctrl() {
+    float Temp_OutPut;
+    float temp_err;
+
+    temp_err = MotorPID.Pos_PID.target - Get_State();
+    Temp_OutPut = PID_GetOutPut(&MotorPID.Pos_PID,temp_err);
+
+    MotorPID.Vel_PID.target = Temp_OutPut;
+    if(MotorPID.Vel_PID.target <= 1)
+        comm_can_set_current_brake(1,Final_OutPut.ui8,&can_ID.length);
+    else
+        comm_can_set_rpm(MotorPID.Vel_PID.target,Final_OutPut.ui8, &can_ID.length);
 }
 
 void Motor_VESC::Ctrl_Reset() {
@@ -74,7 +129,7 @@ void Motor_VESC::Motor_MessageCreate(int num) {
     msg_num=get_Id_address(send_Id);
     if(msg_num== 9)
         msg_num = add_Id_address(send_Id);
-    send_Msg[msg_num].length = can_ID.length;
+    send_Msg[msg_num].length;
     send_Msg[msg_num].ide = can_ID.send_ide;
 }
 

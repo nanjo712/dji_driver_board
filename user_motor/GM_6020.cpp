@@ -16,6 +16,7 @@ void Motor_GM_6020::Init(int num)
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
     can_ID.length = 8;
+    can_ID.mask = 0x1FFFFFFF;
 }
 
 void Motor_GM_6020::Ctrl_Reset()

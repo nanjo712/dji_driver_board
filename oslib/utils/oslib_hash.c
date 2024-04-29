@@ -20,7 +20,8 @@
 
 static int cmpAtom(const void *x, const void *y)
 {
-    return x != y;
+
+    return x != y ;
 }
 
 static unsigned long hashAtom(const void *key)

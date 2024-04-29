@@ -68,6 +68,22 @@ float Motor::Get_State()
     }
 }
 
+float Motor::Get_State_Choose(MotorCtrlMode_Def Mode)
+{
+    switch (Mode) {
+        case VEL_Mode:
+            return MotorState.Vel_Now;
+        case POS_Mode:
+            return LimitPos_f(MotorState.Pos_Now,1);
+        case Multi_POS_Mode:
+            return MotorState.Pos_Now;
+        case CUR_Mode:
+            return MotorState.Cur_Now;
+        default:
+            return 0;
+    }
+}
+
 Motor::~Motor(){
     MotorType = NONE;
 }

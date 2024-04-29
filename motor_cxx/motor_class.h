@@ -31,6 +31,7 @@ public:
     virtual ~Motor();
 
     virtual float Get_State();
+    virtual float Get_State_Choose(MotorCtrlMode_Def Mode);
 
     MotorType_Def Get_Type();
     void Write_Type(MotorType_Def Type);

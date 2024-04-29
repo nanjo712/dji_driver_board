@@ -4,8 +4,8 @@
 
 //RM_3608常量
 const float CURRENT_MAX_3508 = 16384.0f;
-const float VEL_KP_3508 = 200.0f;
-const float VEL_KI_3508 = 8.0f;
+const float VEL_KP_3508 = 250.0f;
+const float VEL_KI_3508 = 4.0f;
 const float VEL_KD_3508 = 0.0f;
 const float POS_KP_3508 = 4.0f;
 const float POS_KI_3508 = 0.0f;

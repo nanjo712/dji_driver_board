@@ -9,6 +9,8 @@ set(
         ${CMAKE_CURRENT_SOURCE_DIR}/RM_3508.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GM_6020.h
         ${CMAKE_CURRENT_SOURCE_DIR}/GM_6020.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/VESC.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/VESC.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/user_motor.h
         ${CMAKE_CURRENT_SOURCE_DIR}/command.h
         ${CMAKE_CURRENT_SOURCE_DIR}/command.cpp

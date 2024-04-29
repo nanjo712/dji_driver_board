@@ -23,6 +23,8 @@ public:
     void Write_CtrlMode(MotorCtrlMode_Def CtrlMode);
     void Motor_MessageCreate(int num);
     void Motor_CtrlMode_Choose();
+    void Pos_Ctrl();
+    void Multi_Pos_Ctrl();
 };
 
 

@@ -21,6 +21,19 @@
 
 /*-CAN任务函数-----------------------------------------------*/
 #define VescMask (~(0x1FUL << 8))
+
+CAN_IDRecord_t mask_list[20];
+uint32_t mask_list_number = 0;
+
+static CAN_IDRecord_t* CAN_Mask(uint32_t id){
+    for(int index = 0; index < mask_list_number; index++){
+        CAN_IDRecord_t *relist = &mask_list[index];
+        if((relist->mask & relist->id) == (relist->mask & id))
+            return &relist[index];
+    }
+    return NULL;
+}
+
 static void CAN_Dispatch_Task(void *argument)
 {
     OSLIB_CAN_Dispatch_t *can_dispatch = (OSLIB_CAN_Dispatch_t *)argument;
@@ -31,21 +44,22 @@ static void CAN_Dispatch_Task(void *argument)
     {   
         osMessageQueueGet(can_handle->rx_queue, &message, 0, osWaitForever);
         Debug("%s: Rx FIFO%d[0x%x]", can_handle->name, message.fifo, message.id);
+
         record = (CAN_IDRecord_t *)HashTable_get(
             can_dispatch->table, 
             (const void *)OSLIB_CAN_HashKey(
-                //message.ide == CAN_ID_EXT ? message.id & VescMask :
+//                message.ide == CAN_ID_EXT ? message.id & VescMask :
                 message.id,message.ide, message.rtr
             )
         );
+        if(NULL == record)
+            record = CAN_Mask(message.id);
         if (NULL != record)
         {
-            osStatus_t temp = 0;
             if (record->queue != NULL)
-                temp = osMessageQueuePut(*(record->queue), &message, NULL, 0);
+                osMessageQueuePut(*(record->queue), &message, NULL, 0);
             else if (record->callback != NULL)
                 record->callback(&message);
-            temp = temp;
         }
     }
 }
@@ -54,8 +68,9 @@ static void CAN_Dispatch_Task(void *argument)
 #define StdFilterID16(id) ((((id) << 3) | CAN_RTR_DATA | CAN_ID_STD) << 2)
 #define StdFilterID32(id) (((id) << (18 + 3)) | CAN_RTR_DATA | CAN_ID_STD)
 #define ExtFilterID32(id) (((id) << 3) | CAN_RTR_DATA | CAN_ID_EXT)
-#define StdFilterMask32(mask) (((mask) << (18 + 3)) | 0x06) // 0x06代表过滤rtr和ide
-#define ExtFilterMask32(mask) (((mask) << 3) | 0x06)        // 0x06代表过滤rtr和ide
+#define StdFilterMask16(mask) ((((mask) << 3) | 0x06) << 2) // 0x06代表过滤ide
+#define StdFilterMask32(mask) (((mask) << (18 + 3)) | 0x06) // 0x06代表过滤ide
+#define ExtFilterMask32(mask) (((mask) << 3) | 0x06)        // 0x06代表过滤ide
 
 #define VescFilterMask ((~(0x1F << (8 + 3))) & 0xFFFFFFFE) // 0x1F代表不参与过滤的5位
 /**
@@ -130,7 +145,7 @@ static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
  * @param id 筛选器组中的参考ID
  * @param mask 筛选器组中的掩码
  */
-static void OSLIB_CAN_MaskFilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id, uint32_t mask)
+static void OSLIB_CAN_Mask32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id, uint32_t mask)
 {
     CAN_FilterTypeDef sFilterConfig;
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
@@ -151,6 +166,35 @@ static void OSLIB_CAN_MaskFilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, ui
     Debug("CAN: Filter[%d] = (id=0x%08x, mask=0x%08x)", bank, id, mask);
 }
 
+/**
+ * @brief 以16bit掩码方式配置筛选器组
+ *
+ * @param hcan 待配置CAN的句柄指针
+ * @param fifo CAN_FILTER_FIFO0/CAN_FILTER_FIFO1
+ * @param bank 筛选器组编号, 范围为0~13
+ * @param id 筛选器组中的参考ID
+ * @param mask 筛选器组中的掩码
+ */
+static void OSLIB_CAN_Mask16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id1, uint32_t id2, uint32_t mask1, uint32_t mask2)
+{
+    CAN_FilterTypeDef sFilterConfig;
+    sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
+    sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
+    sFilterConfig.FilterActivation = ENABLE;
+    sFilterConfig.SlaveStartFilterBank = 14;
+
+    sFilterConfig.FilterBank = bank;
+    sFilterConfig.FilterFIFOAssignment = fifo;
+    sFilterConfig.FilterIdHigh = (uint16_t)(mask1 & 0xFFFF);
+    sFilterConfig.FilterIdLow = (uint16_t)(id1 & 0xFFFF);
+    sFilterConfig.FilterMaskIdHigh = (uint16_t)(mask2 & 0xFFFF);
+    sFilterConfig.FilterMaskIdLow = (uint16_t)(id2 & 0xFFFF);
+
+    if (HAL_CAN_ConfigFilter(hcan, &sFilterConfig) != HAL_OK)
+        Error_Handler();
+
+    Debug("CAN: Filter[%d] = (id1=0x%04x, mask2=0x%04x) (id2=0x%04x, mask2=0x%04x)", bank, id1, mask1, id2, mask2);
+}
 // TODO: 插入哈希表前, 检查是否有ID冲突, 并给出警告
 // TODO: 检查ExtID是否有被VescMask覆盖掉的部分, 并给出警告
 /**
@@ -183,28 +227,13 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
     uint32_t and_value = 0xFFFFFFFF; // 用于取所有ID共同的'1'位
     uint32_t or_value = 0x0;         // 用于取所有ID共同的‘0’位
     uint32_t mask = 0xFFFFFFFF;      // 掩码初始值
-
-    // 处理VESC的ID, 每个VESC的ID需要采用32位掩码筛选器
-    for (index = 0; index < can_record_list_size; index++)
-    {
-        if (bank >= 12)
-            goto bankout_vesc; // 筛选器不够用
-        CAN_IDRecord_t *record = &can_record_list[index];
-        if (record->idtype != CAN_IDTYPE_VESC)
-            continue;
-        OSLIB_CAN_MaskFilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
-                                   ExtFilterID32(record->id), VescFilterMask);
-        HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA), record);
-    }
-
-    // 然后处理扩展帧ID, 每2个扩展帧ID采用32位列表筛选器
+    // 处理列表过滤模式下的扩展帧ID, 每2个扩展帧ID采用32位列表筛选器
     for (index = 0; index < can_record_list_size; index++)
     {
         if (bank >= 12)
             goto bankout_ext; // 筛选器不够用
         CAN_IDRecord_t *record = &can_record_list[index];
-        if (record->idtype != CAN_IDTYPE_EXT)
+        if (record->idtype != CAN_IDTYPE_EXT ||record->filter != CAN_FILTERMODE_IDLIST)
             continue;
         if (store32 == NULL)
             store32 = record;
@@ -219,14 +248,13 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
     if (store32 != NULL)
         OSLIB_CAN_List32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
                                      ExtFilterID32(store32->id), ExtFilterID32(store32->id));
-
-    // 最后处理标准帧ID, 每4个标准帧ID采用16位列表筛选器
+    // 处理列表过滤模式下的标准帧ID, 每4个标准帧ID采用16位列表筛选器
     for (index = 0; index < can_record_list_size; index++)
     {
         if (bank >= 13)
             goto bankout_std;
         CAN_IDRecord_t *record = &can_record_list[index];
-        if (record->idtype != CAN_IDTYPE_STD)
+        if (record->idtype != CAN_IDTYPE_STD || record->filter != CAN_FILTERMODE_IDLIST)
             continue;
         if (store16_len < 3)
             store16[store16_len++] = record;
@@ -261,23 +289,44 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
         break;
     }
 
+    // 处理掩码过滤模式下的ID,每1个扩展帧ID采用32位列表筛选器
+    for (index = 0; index < can_record_list_size; index++)
+    {
+        if (bank >= 12)
+            goto bankout_ext; // 筛选器不够用
+        CAN_IDRecord_t *record = &can_record_list[index];
+        if (record->filter != CAN_FILTERMODE_IDMASK || record->idtype != CAN_IDTYPE_EXT)
+            continue;
+        mask_list[mask_list_number] = can_record_list[index];//自打补丁以后可想办法合并到哈希表
+        mask_list_number++;
+        OSLIB_CAN_Mask32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
+                                   ExtFilterID32(record->id), ExtFilterID32(record->mask));
+    }
+    store32 = NULL;
+    for (index = 0; index < can_record_list_size; index++)
+    {
+        if (bank >= 12)
+            goto bankout_std; // 筛选器不够用
+        CAN_IDRecord_t *record = &can_record_list[index];
+        if (record->idtype != CAN_IDTYPE_STD || record->filter != CAN_FILTERMODE_IDMASK)
+            continue;
+        if (store32 == NULL)
+            store32 = record;
+        else {
+            OSLIB_CAN_Mask16FilterConfig(can_handle->hcan, CAN_FILTER_FIFO0, bank_offset + bank++,
+                                         StdFilterID16(store32->id), StdFilterID16(record->id),StdFilterMask16(store32->mask),StdFilterMask16(record->mask));
+            store32 = NULL;
+        }
+        mask_list[mask_list_number] = can_record_list[index];//自打补丁以后可想办法合并到哈希表
+        mask_list_number++;
+    }
+    if (store32 != NULL)
+        OSLIB_CAN_Mask16FilterConfig(can_handle->hcan, CAN_FILTER_FIFO0, bank_offset + bank++,
+                                     StdFilterID16(store32->id),StdFilterID16(store32->id),StdFilterMask16(store32->mask),StdFilterMask16(store32->mask));
     return;
     // stm32为每个CAN提供14个筛选器, 如果筛选器不够用, 剩下的ID全部合成掩码
     // 掩码的核心是为所需的ID找到尽可能多的相同的位, 针对这些位进行过滤
     // 分别对所有ID取与和取或, 得到的结果分别可以反应出所有ID共同为1的位和所有ID共同为0的位
-bankout_vesc:
-    for (; index < can_record_list_size; index++)
-    {
-        CAN_IDRecord_t *record = &can_record_list[index];
-        if (record->idtype != CAN_IDTYPE_VESC)
-            continue;
-        and_value &= record->id;
-        or_value |= record->id;
-        mask = VescFilterMask;
-        HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA), record);
-    }
-    index = 0;
 bankout_ext:
     for (; index < can_record_list_size; index++)
     {
@@ -295,7 +344,7 @@ bankout_ext:
         or_value |= store32->id;
     }
     mask &= (and_value | (~or_value));
-    OSLIB_CAN_MaskFilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
+    OSLIB_CAN_Mask32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
                                ExtFilterID32(and_value & or_value), ExtFilterMask32(mask));
     // 重置and_value和or_value用来处理标准帧id, (mask已经不再使用了, 所以不需要重置)
     and_value = 0xFFFFFFFF;
@@ -317,7 +366,7 @@ bankout_std:
         and_value &= store16[i]->id;
         or_value |= store16[i]->id;
     }
-    OSLIB_CAN_MaskFilterConfig(can_handle->hcan, CAN_FILTER_FIFO0, bank_offset + bank++,
+    OSLIB_CAN_Mask32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO0, bank_offset + bank++,
                                StdFilterID32(and_value & or_value), StdFilterMask32(and_value | (~or_value)));
     return;
 }

@@ -31,7 +31,7 @@ int add_Id_address(int Id);
 void Send_Message();
 void delete_Id_address();
 extern uint8_t receive_mark;
-
+extern int32_t re_num[4];
 #ifdef __cplusplus
 }
 #endif

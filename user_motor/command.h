@@ -35,7 +35,8 @@ typedef struct CanId{
     int get_Id;
     uint8_t get_ide;
     uint8_t send_ide;
-    uint32_t length;
+    uint32_t mask;
+    int32_t length;
 };
 
 typedef struct MotorState_Def{
@@ -82,6 +83,7 @@ void write_MotorTarget(int num, float target);//改写目标值
 void write_MotorMaxPosVel(int num, int vel);
 void motor_On(int num);
 void motor_Off(int num);
+float get_MotorState_Choose(int num, MotorCtrlMode_Def Mode);
 
 void DriverInit();
 void MotorCtrl();

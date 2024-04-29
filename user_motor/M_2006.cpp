@@ -17,6 +17,7 @@ void Motor_M_2006::Init(int num)
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
     can_ID.length = 8;
+    can_ID.mask = 0x1FFFFFFF;
 }
 
 void Motor_M_2006::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
@@ -33,6 +34,7 @@ void Motor_M_2006::Ctrl_Reset() {
     MotorState = MotorState_Def{0,0,0,0,0};
     Final_OutPut.ui16[0] = 0;
     PosUsed_Flag = 0;
+
 }
 
 void Motor_M_2006::Motor_MessageCreate(int num) {

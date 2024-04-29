@@ -35,6 +35,8 @@ typedef struct
     CAN_IDTYPE idtype;         /* TYPE: CAN_ID_STD/CAN_ID_EXT */
     osMessageQueueId_t *queue; /* 任务对应的消息队列 */
     CAN_Callback callback;     /* 回调函数 */
+    uint8_t filter;
+    uint32_t mask;
 } CAN_IDRecord_t;
 
 typedef struct
@@ -46,10 +48,17 @@ typedef struct
 
 /*-宏-----------------------------------------*/
 #define CANx_Record_Queue(id, idtype, queue) \
-    {id, idtype, queue, NULL}
+    {id, idtype, queue, NULL, CAN_FILTERMODE_IDLIST,0x1FFFFFFF}
 #define CANx_Record_Callback(id, idtype, callback) \
-    {id, idtype, NULL, callback}
-
+    {id, idtype, NULL, callback, CAN_FILTERMODE_IDLIST,0x1FFFFFFF}
+#define CANx_Record_Callback_Mask(id, idtype, callback, mask) \
+    {id, idtype, NULL, callback, CAN_FILTERMODE_IDMASK, mask}
+#define CANx_Record_Queue_Mask(id, idtype, queue, mask) \
+    {id, idtype, queue, NULL, CAN_FILTERMODE_IDMASK, mask}
+#define CANx_Record_Open_Queue(idtype,queue) \
+    {0, idtype, queue, NULL, CAN_FILTERMODE_IDMASK, 0x00}
+#define CANx_Record_Open_Callback(idtype,callback) \
+    {0, idtype, NULL, callback, CAN_FILTERMODE_IDMASK, 0x00}
 /*-接口---------------------------------------*/
 extern void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handle_t *can_handle, 
                                     CAN_IDRecord_t *can_record_list, size_t can_record_list_size);

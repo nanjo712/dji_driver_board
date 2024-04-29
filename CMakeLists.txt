@@ -80,6 +80,7 @@ set(
         Core/Inc/stm32f4xx_hal_conf.h
         Core/Inc/stm32f4xx_it.h
         Core/Inc/tim.h
+        Core/Inc/iwdg.h
         Core/Inc/usart.h
         Core/Inc/toolBoxScope.h
         Core/Inc/motorflash.h
@@ -103,6 +104,7 @@ set(
         Core/Src/tim.c
         Core/Src/toolBoxScope.c
         Core/Src/usart.c
+        Core/Src/iwdg.c
         Core/Src/motorflash.c
         Core/Src/flashwear.c
         Core/Src/heart.c

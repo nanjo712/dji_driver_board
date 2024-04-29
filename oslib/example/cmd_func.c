@@ -305,7 +305,7 @@ static void Command_SetMotor(OSLIB_UART_Handle_t *uartHandle,int argc, char *arg
     if (argc < 4 || argc > 5)
     {
         uprintf("Param num is error: setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
-        motorType: 1 is 3508,2 is 2006,3 is 6020 \r\n");
+        motorType: 1 is 3508,2 is 2006,3 is 6020,4 is CyberGear, 5 is VESC \r\n");
         uprintf(" \
         controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is MulitPosLoop, 4 is CurLoop)> \r\n ");
         return;
@@ -448,7 +448,7 @@ UART_CLI_Command_t UART_CommandList[] =
     {"infos", "infos", Command_Motor_PrintInfoS},
     {"info", "info <motorid>", Command_Motor_PrintInfo},
     {"setmotor", "setmotor <motorid> <motorType> <controlMode> (<maxPosVel>) \r\n \
-        motorType: 1 is 3508,2 is 2006,3 is 6020, \r\n \
+        motorType: 1 is 3508,2 is 2006,3 is 6020,4 is CyberGear,5 is VESC \r\n \
         controlMode: 1 is SpeedLoop, 2 is PosLoop, 3 is MulitPosLoop, 4 is CurLoop\r\n \
         maxPosVel: Pos's maxvel",
      Command_SetMotor},

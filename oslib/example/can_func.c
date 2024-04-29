@@ -42,18 +42,19 @@ extern osMessageQueueId_t protectReceiveQueueHandle;
 #if defined(CAN1_ENABLED)
 
 /* 在这里添加对CAN1的其他ID和对应消息队列的指针或回调函数 */
+//can1为电机的接口
 CAN_IDRecord_t CAN1_RecordList[] = {
-    // {0x1, CAN_IDTYPE_STD, NULL, CanCallback_EchoID},
+//     {0x1, CAN_IDTYPE_STD, NULL, CanCallback_EchoID},
 //    CANx_Record_Callback(0x1, CAN_IDTYPE_STD, CanCallback_EchoID),
     // {0x9, CAN_IDTYPE_STD, NULL, CanCallback_EchoID},
     // {0x2, CAN_IDTYPE_EXT, NULL, CanCallback_EchoID},
-    CANx_Record_Queue(0x10, CAN_IDTYPE_STD, &can1ReceiveQueueHandle),
     CANx_Record_Queue(0x201, CAN_IDTYPE_STD, &can1ReceiveQueueHandle),
     CANx_Record_Queue(0x202, CAN_IDTYPE_STD, &can1ReceiveQueueHandle),
     CANx_Record_Queue(0x203, CAN_IDTYPE_STD, &can1ReceiveQueueHandle),
     CANx_Record_Queue(0x204,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
     CANx_Record_Queue(0x205,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
     CANx_Record_Queue(0x206,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
+    CANx_Record_Queue_Mask(0x4E,CAN_IDTYPE_EXT,&can1ReceiveQueueHandle,0xFF),
 //    CANx_Record_Queue(0x207,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
 #if USE_OSLIB_CAN_EXAMPLE
     // {0x120, CAN_IDTYPE_STD, &ExampleCanTaskQueue, NULL},
@@ -72,7 +73,7 @@ size_t CAN1_RecordListSize = sizeof(CAN1_RecordList) / sizeof(CAN_IDRecord_t);
 //必须为奇数个任务，不然无法进入Receive_Func
 CAN_IDRecord_t CAN2_RecordList[] = {
     // {0x2, CAN_IDTYPE_STD, NULL, CanCallback_EchoID},
-//    CANx_Record_Callback(0x200,CAN_IDTYPE_STD,CanCallback_EchoID),
+    CANx_Record_Callback(0x200,CAN_IDTYPE_STD,CanCallback_EchoID),
 //    CANx_Record_Queue(0x200,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
     CANx_Record_Queue(0x201,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),
     CANx_Record_Queue(0x202,CAN_IDTYPE_STD,&can2ReceiveQueueHandle),

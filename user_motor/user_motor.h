@@ -5,6 +5,7 @@
 #include "RM_3508.h"
 #include "M_2006.h"
 #include "GM_6020.h"
+#include "VESC.h"
 
 template<typename First, typename ... Rest>
 constexpr std::common_type_t<First, Rest...> mymax(const First& first, const Rest...rest) {
@@ -22,7 +23,7 @@ constexpr size_t Get_Size() {
     return mymax(sizeof(MotorTypes)...);
 }
 
-const size_t Max_Size = Get_Size<Motor_M_2006,Motor_RM_3508,Motor_GM_6020>();
+const size_t Max_Size = Get_Size<Motor_M_2006,Motor_RM_3508,Motor_GM_6020,Motor_VESC>();
 
 static char c_buffer[Max_Size * Motor::COUNT] = { 0 };				// 对象的存储空间
 static char c_map[Motor::COUNT] = { 0 };					// 每个存储对象位置是否空间，0表示空间可用
