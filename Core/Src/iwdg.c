@@ -21,7 +21,10 @@
 #include "iwdg.h"
 
 /* USER CODE BEGIN 0 */
-
+#define IWDG_WriteAccess_Enable     ((uint16_t)0x5555)
+#define IWDG_WriteAccess_Disable    ((uint16_t)0x0000)
+#define IS_IWDG_WRITE_ACCESS(ACCESS) (((ACCESS) == IWDG_WriteAccess_Enable) || \
+                                      ((ACCESS) == IWDG_WriteAccess_Disable))
 /* USER CODE END 0 */
 
 IWDG_HandleTypeDef hiwdg;

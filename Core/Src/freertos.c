@@ -27,6 +27,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "oslib.h"
+#include "iwdg.h"
 #include "../user_motor/command.h"
 #include "../motor_cxx/message.h"
 #include "iwdg.h"
@@ -114,6 +115,8 @@ const osSemaphoreAttr_t can1sendSema_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+void DELAY_Queue_Init(){
+}
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
