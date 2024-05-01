@@ -111,6 +111,7 @@ void Motor::Turn_On() {
 
 void Motor::Turn_Off() {
     On = 0;
+    delete_Id_address(can_ID);
 }
 
 uint8_t Motor::If_On() {

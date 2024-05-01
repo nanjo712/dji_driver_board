@@ -116,6 +116,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     message.rtr = header.RTR;
     message.len = header.DLC;
     message.fifo = CAN_RX_FIFO0;
+    message.index = header.FilterMatchIndex;
     memset(message.payload.ch, 0, 8);
     memcpy(message.payload.ch, data, header.DLC);
     osMessageQueuePut(can_handle->rx_queue, &message, 0, 0);
@@ -148,6 +149,7 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
     message.rtr = header.RTR;
     message.len = header.DLC;
     message.fifo = CAN_RX_FIFO1;
+    message.index = header.FilterMatchIndex;
     memset(message.payload.ch, 0, 8);
     memcpy(message.payload.ch, data, header.DLC);
     osMessageQueuePut(can_handle->rx_queue, &message, 0, 0);

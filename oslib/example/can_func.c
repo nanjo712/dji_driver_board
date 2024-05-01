@@ -54,7 +54,9 @@ CAN_IDRecord_t CAN1_RecordList[] = {
     CANx_Record_Queue(0x204,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
     CANx_Record_Queue(0x205,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
     CANx_Record_Queue(0x206,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
+    CANx_Record_Queue(0x10,CAN_IDTYPE_EXT,&can1ReceiveQueueHandle),
     CANx_Record_Queue_Mask(0x4E,CAN_IDTYPE_EXT,&can1ReceiveQueueHandle,0xFF),
+    CANx_Record_Queue_Mask(0x4F,CAN_IDTYPE_EXT,&can1ReceiveQueueHandle,0xFF),
 //    CANx_Record_Queue(0x207,CAN_IDTYPE_STD,&can1ReceiveQueueHandle),
 #if USE_OSLIB_CAN_EXAMPLE
     // {0x120, CAN_IDTYPE_STD, &ExampleCanTaskQueue, NULL},

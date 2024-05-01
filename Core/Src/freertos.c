@@ -213,7 +213,6 @@ void StartDefaultTask(void *argument)
     {
         MotorCtrl();
         osDelay(1);
-        num++;
 //        if(num % 100 == 0)
 //            uprintf("%d %d %d %d\r\n", re_num[0], re_num[1], re_num[2], re_num[3]);
 //        if(num % 100 == 0)

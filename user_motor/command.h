@@ -35,7 +35,8 @@ typedef struct CanId{
     int get_Id;
     uint8_t get_ide;
     uint8_t send_ide;
-    uint32_t mask;
+    uint32_t send_mask;
+    uint32_t get_mask;
     int32_t length;
 };
 

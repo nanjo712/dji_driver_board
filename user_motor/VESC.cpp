@@ -46,10 +46,11 @@ void Motor_VESC::Init(int num)
     MotorType = VESC;
     On = false;
     Ctrl_Reset();
-    can_ID.send_Id = CAN_ID_EXT;
+    can_ID.send_ide = CAN_ID_EXT;
     can_ID.get_ide = CAN_ID_EXT;
     can_ID.send_Id = RM_SEND_BASE + num;
-    can_ID.mask = 0xFF;
+    can_ID.get_mask = 0xFF;
+    can_ID.send_mask = 0xFF;
     can_ID.get_Id = RM_RECV_BASE + num;
     can_ID.length = 0;
 }
@@ -66,9 +67,9 @@ void Motor_VESC::Write_CtrlMode(MotorCtrlMode_Def CtrlMode) {
 void Motor_VESC:: Motor_CtrlMode_Choose(){
     switch (MotorCtrlMode) {
         case VEL_Mode:
-            if(MotorPID.Vel_PID.target <= 1)
-                comm_can_set_current_brake(1,Final_OutPut.ui8,&can_ID.length);
-            else
+//            if(MotorPID.Vel_PID.target <= 1)
+//                comm_can_set_current_brake(1,Final_OutPut.ui8,&can_ID.length);
+//            else
                 comm_can_set_rpm(MotorPID.Vel_PID.target,Final_OutPut.ui8, &can_ID.length);
             break;
         case POS_Mode:
@@ -126,11 +127,13 @@ void Motor_VESC::Ctrl_Reset() {
 void Motor_VESC::Motor_MessageCreate(int num) {
     int msg_num;
     uint32_t send_Id = can_ID.send_Id |(encode_ctrl_mode(MotorCtrlMode) << 8);
-    msg_num=get_Id_address(send_Id);
+    msg_num = get_Id_address(can_ID);
     if(msg_num== 9)
-        msg_num = add_Id_address(send_Id);
-    send_Msg[msg_num].length;
+        msg_num = add_Id_address();
+    send_Msg[msg_num].can_Id = send_Id;
+    send_Msg[msg_num].length = can_ID.length;
     send_Msg[msg_num].ide = can_ID.send_ide;
+    send_Msg[msg_num].msg = Final_OutPut;
 }
 
 void Motor_VESC::Data_Receive(CAN_ConnMessage msg) {

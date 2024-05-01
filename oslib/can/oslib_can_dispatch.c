@@ -17,22 +17,13 @@
 #include "utils/oslib_hash.h"
 #include "debug/oslib_debug.h"
 
-#define OSLIB_CAN_HashKey(id, ide, rtr) (((id) << 3) | (ide) | (rtr))
-
+#define OSLIB_CAN_HashKey(id, ide, rtr, mask) ((((id) << 3) | (ide) | (rtr)) & ((mask << 3) | 0x07))
+#define Get_CANID(can) ((can == &hcan1) ? 0:1)
 /*-CAN任务函数-----------------------------------------------*/
 #define VescMask (~(0x1FUL << 8))
 
-CAN_IDRecord_t mask_list[20];
-uint32_t mask_list_number = 0;
-
-static CAN_IDRecord_t* CAN_Mask(uint32_t id){
-    for(int index = 0; index < mask_list_number; index++){
-        CAN_IDRecord_t *relist = &mask_list[index];
-        if((relist->mask & relist->id) == (relist->mask & id))
-            return &relist[index];
-    }
-    return NULL;
-}
+uint32_t mask_list[2][2][30];
+int mask_list_num[2][2] = {0,0,0,0};
 
 static void CAN_Dispatch_Task(void *argument)
 {
@@ -44,16 +35,11 @@ static void CAN_Dispatch_Task(void *argument)
     {   
         osMessageQueueGet(can_handle->rx_queue, &message, 0, osWaitForever);
         Debug("%s: Rx FIFO%d[0x%x]", can_handle->name, message.fifo, message.id);
-
+        uint8_t can_id = Get_CANID(can_handle->hcan);
         record = (CAN_IDRecord_t *)HashTable_get(
             can_dispatch->table, 
-            (const void *)OSLIB_CAN_HashKey(
-//                message.ide == CAN_ID_EXT ? message.id & VescMask :
-                message.id,message.ide, message.rtr
-            )
+            (const void *)OSLIB_CAN_HashKey(message.id,message.ide,message.rtr,mask_list[can_id][message.fifo][message.index])
         );
-        if(NULL == record)
-            record = CAN_Mask(message.id);
         if (NULL != record)
         {
             if (record->queue != NULL)
@@ -84,6 +70,7 @@ static void CAN_Dispatch_Task(void *argument)
  */
 static void OSLIB_CAN_List32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t fid1, uint32_t fid2)
 {
+    uint8_t can_id = Get_CANID(hcan);
     CAN_FilterTypeDef sFilterConfig;
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
@@ -99,7 +86,10 @@ static void OSLIB_CAN_List32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 
     if (HAL_CAN_ConfigFilter(hcan, &sFilterConfig) != HAL_OK)
         Error_Handler();
-    
+
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
+
     Debug("CAN: Filter[%d] = (0x%08x, 0x%08x)", bank, fid1, fid2);
 }
 
@@ -118,6 +108,7 @@ static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
                                          uint16_t fid1, uint16_t fid2, uint16_t fid3, uint16_t fid4)
 {
     CAN_FilterTypeDef sFilterConfig;
+    uint8_t can_id = Get_CANID(hcan);
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDLIST;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
     sFilterConfig.FilterActivation = ENABLE;
@@ -125,13 +116,18 @@ static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 
     sFilterConfig.FilterBank = bank;
     sFilterConfig.FilterFIFOAssignment = fifo;
-    sFilterConfig.FilterIdHigh = (uint16_t)((fid1)&0xFFFF);
-    sFilterConfig.FilterIdLow = (uint16_t)((fid2)&0xFFFF);
-    sFilterConfig.FilterMaskIdHigh = (uint16_t)((fid3)&0xFFFF);
-    sFilterConfig.FilterMaskIdLow = (uint16_t)((fid4)&0xFFFF);
+    sFilterConfig.FilterIdHigh = (uint16_t)((fid3)&0xFFFF);
+    sFilterConfig.FilterIdLow = (uint16_t)((fid1)&0xFFFF);
+    sFilterConfig.FilterMaskIdHigh = (uint16_t)((fid4)&0xFFFF);
+    sFilterConfig.FilterMaskIdLow = (uint16_t)((fid2)&0xFFFF);
 
     if (HAL_CAN_ConfigFilter(hcan, &sFilterConfig) != HAL_OK)
         Error_Handler();
+
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = FULLMASK;
 
     Debug("CAN: Filter[%d] = (0x%04hx, 0x%04hx, 0x%04hx, 0x%04hx)", bank, fid1, fid2, fid3, fid4);
 }
@@ -148,6 +144,7 @@ static void OSLIB_CAN_List16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 static void OSLIB_CAN_Mask32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id, uint32_t mask)
 {
     CAN_FilterTypeDef sFilterConfig;
+    uint8_t can_id = Get_CANID(hcan);
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
     sFilterConfig.FilterActivation = ENABLE;
@@ -162,6 +159,8 @@ static void OSLIB_CAN_Mask32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 
     if (HAL_CAN_ConfigFilter(hcan, &sFilterConfig) != HAL_OK)
         Error_Handler();
+
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = (mask >> 3);
 
     Debug("CAN: Filter[%d] = (id=0x%08x, mask=0x%08x)", bank, id, mask);
 }
@@ -178,6 +177,7 @@ static void OSLIB_CAN_Mask32FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 static void OSLIB_CAN_Mask16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, uint32_t bank, uint32_t id1, uint32_t id2, uint32_t mask1, uint32_t mask2)
 {
     CAN_FilterTypeDef sFilterConfig;
+    uint8_t can_id = Get_CANID(hcan);
     sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
     sFilterConfig.FilterScale = CAN_FILTERSCALE_16BIT;
     sFilterConfig.FilterActivation = ENABLE;
@@ -192,6 +192,9 @@ static void OSLIB_CAN_Mask16FilterConfig(CAN_HandleTypeDef *hcan, uint8_t fifo, 
 
     if (HAL_CAN_ConfigFilter(hcan, &sFilterConfig) != HAL_OK)
         Error_Handler();
+
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = (mask1 >> 3);
+    mask_list[can_id][fifo][mask_list_num[can_id][fifo]++] = (mask2 >> 3);
 
     Debug("CAN: Filter[%d] = (id1=0x%04x, mask2=0x%04x) (id2=0x%04x, mask2=0x%04x)", bank, id1, mask1, id2, mask2);
 }
@@ -216,7 +219,6 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
     can_dispatch->task = osThreadNew(CAN_Dispatch_Task, can_dispatch, &task_attr);
     can_dispatch->table = HashTable_create(NULL, NULL, NULL);
     can_dispatch->can_handle = can_handle;
-
     // 配置CAN筛选器+插入哈希表
     // 扫描列表三遍, 每次处理一种类型的ID
     int bank = 0, index = 0;
@@ -243,7 +245,7 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
             store32 = NULL;
         }
         HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA), record);
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA, FULLMASK), record);
     }
     if (store32 != NULL)
         OSLIB_CAN_List32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
@@ -265,7 +267,7 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
             store16_len = 0;
         }
         HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_STD, CAN_RTR_DATA), record);
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_STD, CAN_RTR_DATA, FULLMASK), record);
     }
     switch (store16_len)
     {
@@ -297,12 +299,13 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
         CAN_IDRecord_t *record = &can_record_list[index];
         if (record->filter != CAN_FILTERMODE_IDMASK || record->idtype != CAN_IDTYPE_EXT)
             continue;
-        mask_list[mask_list_number] = can_record_list[index];//自打补丁以后可想办法合并到哈希表
-        mask_list_number++;
+        HashTable_insert(can_dispatch->table,
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA, record->mask), record);
         OSLIB_CAN_Mask32FilterConfig(can_handle->hcan, CAN_FILTER_FIFO1, bank_offset + bank++,
                                    ExtFilterID32(record->id), ExtFilterID32(record->mask));
     }
     store32 = NULL;
+    // 处理掩码过滤模式下的ID,每2个标准帧ID采用16位列表筛选器
     for (index = 0; index < can_record_list_size; index++)
     {
         if (bank >= 12)
@@ -317,8 +320,8 @@ void OSLIB_CAN_Dispatch_Init(OSLIB_CAN_Dispatch_t *can_dispatch, OSLIB_CAN_Handl
                                          StdFilterID16(store32->id), StdFilterID16(record->id),StdFilterMask16(store32->mask),StdFilterMask16(record->mask));
             store32 = NULL;
         }
-        mask_list[mask_list_number] = can_record_list[index];//自打补丁以后可想办法合并到哈希表
-        mask_list_number++;
+        HashTable_insert(can_dispatch->table,
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA, record->mask), record);
     }
     if (store32 != NULL)
         OSLIB_CAN_Mask16FilterConfig(can_handle->hcan, CAN_FILTER_FIFO0, bank_offset + bank++,
@@ -336,7 +339,7 @@ bankout_ext:
         and_value &= record->id;
         or_value |= record->id;
         HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA), record);
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_EXT, CAN_RTR_DATA, FULLMASK), record);
     }
     if (store32 != NULL)
     {
@@ -359,7 +362,7 @@ bankout_std:
         and_value &= record->id;
         or_value |= record->id;
         HashTable_insert(can_dispatch->table,
-                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_STD, CAN_RTR_DATA), record);
+                         (const void *)OSLIB_CAN_HashKey(record->id, CAN_ID_STD, CAN_RTR_DATA, FULLMASK), record);
     }
     for (int i = 0; i < store16_len; i++)
     {

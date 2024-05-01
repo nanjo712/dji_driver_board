@@ -26,7 +26,8 @@
 #ifdef STM32F103xB
 #define hcan1 hcan
 #endif
-
+/*-一些定义-----------------------------------*/
+#define FULLMASK 0x1FFFFFFF
 /*-数据结构-----------------------------------*/
 
 typedef union
@@ -50,6 +51,7 @@ typedef struct
     uint8_t rtr;
     uint8_t len;
     uint8_t fifo;
+    uint8_t index;
     CAN_Message payload;
 } CAN_ConnMessage;
 

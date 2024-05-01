@@ -15,17 +15,18 @@ Can_Message_Def send_Msg[5];
 uint8_t receive_mark;
 int32_t re_num[4];
 
-uint8_t If_Right(CAN_ConnMessage msg, CanId get){
-    if(msg.ide != get.get_ide)
+uint8_t If_Right(uint8_t first_ide, int first_id, uint8_t second_ide, int second_id, uint32_t mask){
+    if(first_ide != second_ide)
         return 0;
-    return ((get.mask & msg.id) == (get.get_Id & get.mask)) ? 1:0;
+    return ((mask & first_id) == (second_id & mask)) ? 1:0;
 }
 
 
 void  Receive_Choose(CAN_ConnMessage msg){
     for(int i=0;i<4;i++)
     {
-        if(If_Right(msg, P_Motor[i]->Get_CanId()) == 1)
+        CanId temp =  P_Motor[i]->Get_CanId();
+        if(If_Right(msg.ide,msg.id,temp.get_ide,temp.get_Id,temp.get_mask) == 1)
         {
             if(!P_Motor[i]->If_On())
                 P_Motor[i]->Turn_On();
@@ -35,42 +36,35 @@ void  Receive_Choose(CAN_ConnMessage msg){
     return;
 }
 
-int get_Id_address(int Id)
+int get_Id_address(CanId temp)
 {
     for(int i=0;i<5;i++)
     {
-        if(send_Msg[i].can_Id == Id)
-            return i;
+        if(send_Msg[i].used)
+            if(If_Right(send_Msg[i].ide,send_Msg[i].can_Id,temp.send_ide,temp.send_Id,temp.send_mask) == 1)
+                return i;
     }
     return 9;
 }
 
-int add_Id_address(int Id)
+int add_Id_address()
 {
-    int F_num = 9;
     for(int i=0;i<5;i++)
     {
         if(send_Msg[i].used == 0)
         {
             send_Msg[i].used++;
-            send_Msg[i].can_Id = Id;
             return i;
         }
     }
-    return F_num;
+    return 9;
 }
 
-void delete_Id_address(){
+void delete_Id_address(CanId temp){
     for(int i=0;i<5;i++)
     {
-        if(send_Msg[i].used == 0) {
-            send_Msg[i].used = 0;
-            send_Msg[i].can_Id = 0;
-            send_Msg[i].length = 0;
-            send_Msg[i].ide = 0;
-            send_Msg[i].msg.in[0] = 0;
-            send_Msg[i].msg.in[1] = 0;
-        }
+        if(If_Right(send_Msg[i].ide,send_Msg[i].can_Id,temp.send_ide,temp.send_Id,temp.send_mask) == 1)
+            send_Msg[i].used--;
     }
 }
 
@@ -79,7 +73,6 @@ void Send_Message(){
         if(send_Msg[i].used > 0)
             OSLIB_CAN_SendMessage_Length(&hcan1, send_Msg[i].ide, send_Msg[i].can_Id, &send_Msg[i].msg,send_Msg[i].length);
     }
-    delete_Id_address();
 }
 
 void can1SendFunc(void *argument)

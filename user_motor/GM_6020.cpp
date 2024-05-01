@@ -16,7 +16,8 @@ void Motor_GM_6020::Init(int num)
     can_ID.send_Id = RM_SEND_BASE;
     can_ID.get_Id = RM_RECV_BASE + num;
     can_ID.length = 8;
-    can_ID.mask = 0x1FFFFFFF;
+    can_ID.send_mask = FULLMASK;
+    can_ID.get_mask = FULLMASK;
 }
 
 void Motor_GM_6020::Ctrl_Reset()
@@ -31,11 +32,12 @@ void Motor_GM_6020::Ctrl_Reset()
 
 void Motor_GM_6020::Motor_MessageCreate(int num) {
     int msg_num;
-    msg_num = get_Id_address(can_ID.send_Id);
+    msg_num = get_Id_address(can_ID);
     if(msg_num== 9)
-        msg_num = add_Id_address(can_ID.send_Id);
+        msg_num = add_Id_address();
     send_Msg[msg_num].msg.ui8[num * 2] = Final_OutPut.ui8[1] & 0xff;
     send_Msg[msg_num].msg.ui8[num * 2 + 1] = Final_OutPut.ui8[0] & 0xff;
+    send_Msg[msg_num].can_Id = can_ID.send_Id;
     send_Msg[msg_num].length = can_ID.length;
     send_Msg[msg_num].ide = can_ID.send_ide;
 }

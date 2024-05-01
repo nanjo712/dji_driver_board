@@ -7,6 +7,8 @@ extern "C"
 
 #include "cmsis_os2.h"
 #include "oslib_can.h"
+#include "../user_motor/command.h"
+
 
 struct Can_Message_Def{
     int can_Id;
@@ -26,10 +28,10 @@ void can1ReceiveFunc(void *argument);
 void can1SendFunc(void *argument);
 extern struct Can_Message_Def send_Msg[5];
 
-int get_Id_address(int Id);
-int add_Id_address(int Id);
+int get_Id_address(struct CanId temp);
+int add_Id_address();
 void Send_Message();
-void delete_Id_address();
+void delete_Id_address(struct CanId temp);
 extern uint8_t receive_mark;
 extern int32_t re_num[4];
 #ifdef __cplusplus
